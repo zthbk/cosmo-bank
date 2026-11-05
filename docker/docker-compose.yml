@@ -21,7 +21,7 @@ services:
     command: redis-server /opt/polaris/redis/redis.conf --appendonly yes
 
   polaris-mysql:
-    image: mysql:8  # 使用官方MySQL 8镜像
+    image: mysql:8.4  # 使用官方 MySQL 8.4 LTS 镜像
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306" ]
@@ -43,7 +43,7 @@ services:
       - ./mysql/conf:/etc/mysql/conf.d
       - ./logs/mysql:/logs
       - ./volumes/mysql/data:/var/lib/mysql  
-      - ../数据库/2.7.4/初始化-mysql-2.7.4.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化SQL脚本目录
+      - ../数据库/3.0.0/初始化-mysql-3.0.0.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化SQL脚本
     command: [
           # '--default-authentication-plugin=mysql_native_password',
           '--innodb-buffer-pool-size=80M',

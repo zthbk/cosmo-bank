@@ -4,9 +4,6 @@ import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.controller.bean.Extent;
 import com.genersoft.iot.vmp.gb28181.dao.provider.ChannelProvider;
 import com.genersoft.iot.vmp.gb28181.dao.provider.MysqlCommonChannelUpsertProvider;
-import com.genersoft.iot.vmp.gb28181.dao.provider.PostgresStyleCommonChannelUpsertProvider;
-import com.genersoft.iot.vmp.gb28181.dao.provider.H2CommonChannelUpsertProvider;
-import com.genersoft.iot.vmp.gb28181.dao.provider.DmCommonChannelUpsertProvider;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
 import com.genersoft.iot.vmp.streamPush.bean.StreamPush;
 import com.genersoft.iot.vmp.web.custom.bean.CameraChannel;
@@ -178,10 +175,6 @@ public interface CommonGBChannelMapper {
 
 
     @InsertProvider(type = MysqlCommonChannelUpsertProvider.class, method = "batchUpsert", databaseId = "mysql")
-    @InsertProvider(type = PostgresStyleCommonChannelUpsertProvider.class, method = "batchUpsert", databaseId = "postgresql")
-    @InsertProvider(type = PostgresStyleCommonChannelUpsertProvider.class, method = "batchUpsert", databaseId = "kingbase")
-    @InsertProvider(type = H2CommonChannelUpsertProvider.class, method = "batchUpsert", databaseId = "h2")
-    @InsertProvider(type = DmCommonChannelUpsertProvider.class, method = "batchUpsert", databaseId = "dm")
     int batchUpsert(@Param("channels") List<CommonGBChannel> channels);
 
     @Insert(" <script>" +
@@ -648,18 +641,10 @@ public interface CommonGBChannelMapper {
                                        @Param("level") Integer level, @Param("groupList") List<CameraGroup> groupList);
 
     @SelectProvider(type = ChannelProvider.class, method = "queryListInCircleForMysql", databaseId = "mysql")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInCircleForMysql", databaseId = "h2")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInCircleForKingBase", databaseId = "kingbase")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInCircleForKingBase", databaseId = "postgresql")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInCircleForDm", databaseId = "dm")
     List<CameraChannel> queryListInCircle(@Param("centerLongitude") Double centerLongitude, @Param("centerLatitude") Double centerLatitude,
                                           @Param("radius") Double radius, @Param("level") Integer level, @Param("groupList") List<CameraGroup> groupList);
 
     @SelectProvider(type = ChannelProvider.class, method = "queryListInPolygonForMysql", databaseId = "mysql")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInPolygonForMysql", databaseId = "h2")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInPolygonForKingBase", databaseId = "kingbase")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInPolygonForKingBase", databaseId = "postgresql")
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInPolygonForDm", databaseId = "dm")
     List<CameraChannel> queryListInPolygon(@Param("pointList") List<Point> pointList, @Param("level") Integer level, @Param("groupList") List<CameraGroup> groupList);
 
     @SelectProvider(type = ChannelProvider.class, method = "queryListForSyMobile")

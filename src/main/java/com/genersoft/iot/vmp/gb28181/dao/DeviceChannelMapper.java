@@ -6,9 +6,6 @@ import com.genersoft.iot.vmp.gb28181.bean.DeviceMobilePosition;
 import com.genersoft.iot.vmp.gb28181.controller.bean.ChannelReduce;
 import com.genersoft.iot.vmp.gb28181.dao.provider.DeviceChannelProvider;
 import com.genersoft.iot.vmp.gb28181.dao.provider.MysqlChannelUpsertProvider;
-import com.genersoft.iot.vmp.gb28181.dao.provider.PostgresStyleUpsertProvider;
-import com.genersoft.iot.vmp.gb28181.dao.provider.H2ChannelUpsertProvider;
-import com.genersoft.iot.vmp.gb28181.dao.provider.DmChannelUpsertProvider;
 import com.genersoft.iot.vmp.web.gb28181.dto.DeviceChannelExtend;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -201,10 +198,6 @@ public interface DeviceChannelMapper {
     void offline(@Param("id") int id);
 
     @InsertProvider(type = MysqlChannelUpsertProvider.class, method = "batchUpsert", databaseId = "mysql")
-    @InsertProvider(type = PostgresStyleUpsertProvider.class, method = "batchUpsert", databaseId = "postgresql")
-    @InsertProvider(type = PostgresStyleUpsertProvider.class, method = "batchUpsert", databaseId = "kingbase")
-    @InsertProvider(type = H2ChannelUpsertProvider.class, method = "batchUpsert", databaseId = "h2")
-    @InsertProvider(type = DmChannelUpsertProvider.class, method = "batchUpsert", databaseId = "dm")
     int batchUpsert(@Param("channels") List<DeviceChannel> channels);
 
     @Insert("<script> " +

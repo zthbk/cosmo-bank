@@ -26,11 +26,9 @@ import com.genersoft.iot.vmp.service.bean.ErrorCallback;
 import com.genersoft.iot.vmp.service.bean.MediaServerLoad;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.dao.MediaServerMapper;
-import com.genersoft.iot.vmp.streamProxy.bean.StreamProxy;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.utils.redis.RedisUtil;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
-import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -674,17 +672,6 @@ public class MediaServerServiceImpl implements IMediaServerService {
     }
 
     @Override
-    public WVPResult<String> addStreamProxy(MediaServer mediaServer, String app, String stream, String url,
-                                            boolean enableAudio, boolean enableMp4, String rtpType, Integer timeout) {
-        IMediaNodeServerService mediaNodeServerService = nodeServerServiceMap.get(mediaServer.getType());
-        if (mediaNodeServerService == null) {
-            log.info("[addStreamProxy] 失败, mediaServer的类型： {}，未找到对应的实现类", mediaServer.getType());
-            return WVPResult.fail(ErrorCode.ERROR400);
-        }
-        return mediaNodeServerService.addStreamProxy(mediaServer, app, stream, url, enableAudio, enableMp4, rtpType, timeout);
-    }
-
-    @Override
     public Boolean delFFmpegSource(MediaServer mediaServer, String streamKey) {
         IMediaNodeServerService mediaNodeServerService = nodeServerServiceMap.get(mediaServer.getType());
         if (mediaNodeServerService == null) {
@@ -692,16 +679,6 @@ public class MediaServerServiceImpl implements IMediaServerService {
             return false;
         }
         return mediaNodeServerService.delFFmpegSource(mediaServer, streamKey);
-    }
-
-    @Override
-    public Boolean delStreamProxy(MediaServer mediaServerItem, String streamKey) {
-        IMediaNodeServerService mediaNodeServerService = nodeServerServiceMap.get(mediaServerItem.getType());
-        if (mediaNodeServerService == null) {
-            log.info("[delStreamProxy] 失败, mediaServer的类型： {}，未找到对应的实现类", mediaServerItem.getType());
-            return false;
-        }
-        return mediaNodeServerService.delStreamProxy(mediaServerItem, streamKey);
     }
 
     @Override
@@ -843,26 +820,6 @@ public class MediaServerServiceImpl implements IMediaServerService {
             throw new ControllerException(ErrorCode.ERROR100.getCode(), "未找到mediaServer对应的实现类");
         }
         return mediaNodeServerService.updateDownloadProcess(mediaServer, app, stream);
-    }
-
-    @Override
-    public String startProxy(MediaServer mediaServer, StreamProxy streamProxy) {
-        IMediaNodeServerService mediaNodeServerService = nodeServerServiceMap.get(mediaServer.getType());
-        if (mediaNodeServerService == null) {
-            log.info("[startProxy] 失败, mediaServer的类型： {}，未找到对应的实现类", mediaServer.getType());
-            throw new ControllerException(ErrorCode.ERROR100.getCode(), "未找到mediaServer对应的实现类");
-        }
-        return mediaNodeServerService.startProxy(mediaServer, streamProxy);
-    }
-
-    @Override
-    public void stopProxy(MediaServer mediaServer, String streamKey, String type) {
-        IMediaNodeServerService mediaNodeServerService = nodeServerServiceMap.get(mediaServer.getType());
-        if (mediaNodeServerService == null) {
-            log.info("[stopProxy] 失败, mediaServer的类型： {}，未找到对应的实现类", mediaServer.getType());
-            throw new ControllerException(ErrorCode.ERROR100.getCode(), "未找到mediaServer对应的实现类");
-        }
-        mediaNodeServerService.stopProxy(mediaServer, streamKey, type);
     }
 
     @Override

@@ -328,50 +328,11 @@ public class ZLMRESTfulUtils {
         }
     }
 
-    public ZLMResult<StreamProxyResult> addFFmpegSource(MediaServer mediaServer, String src_url, String dst_url, Integer timeout_sec,
-                                      boolean enable_audio, boolean enable_mp4, String ffmpeg_cmd_key){
-
-        Map<String, Object> param = new HashMap<>();
-        param.put("src_url", src_url);
-        param.put("dst_url", dst_url);
-        param.put("timeout_ms", timeout_sec*1000);
-        param.put("enable_mp4", enable_mp4);
-        param.put("ffmpeg_cmd_key", ffmpeg_cmd_key);
-
-        String response = sendPost(mediaServer, "addFFmpegSource",param, null);
-        if (response == null) {
-            return ZLMResult.getFailForMediaServer();
-        }else {
-            ZLMResult<StreamProxyResult> zlmResult = JSON.parseObject(response, new TypeReference<ZLMResult<StreamProxyResult>>() {});
-            if (zlmResult == null) {
-                return ZLMResult.getFailForMediaServer();
-            }else {
-                return zlmResult;
-            }
-        }
-    }
-
     public ZLMResult<FlagData> delFFmpegSource(MediaServer mediaServer, String key){
         Map<String, Object> param = new HashMap<>();
         param.put("key", key);
 
         String response = sendPost(mediaServer, "delFFmpegSource",param, null);
-        if (response == null) {
-            return ZLMResult.getFailForMediaServer();
-        }else {
-            ZLMResult<FlagData> zlmResult = JSON.parseObject(response, new TypeReference<ZLMResult<FlagData>>() {});
-            if (zlmResult == null) {
-                return ZLMResult.getFailForMediaServer();
-            }else {
-                return zlmResult;
-            }
-        }
-    }
-
-    public ZLMResult<FlagData> delStreamProxy(MediaServer mediaServer, String key){
-        Map<String, Object> param = new HashMap<>();
-        param.put("key", key);
-        String response = sendPost(mediaServer, "delStreamProxy",param, null);
         if (response == null) {
             return ZLMResult.getFailForMediaServer();
         }else {
@@ -572,32 +533,6 @@ public class ZLMRESTfulUtils {
             return ZLMResult.getFailForMediaServer();
         }else {
             ZLMResult<?> zlmResult = JSON.parseObject(response, ZLMResult.class);
-            if (zlmResult == null) {
-                return ZLMResult.getFailForMediaServer();
-            }else {
-                return zlmResult;
-            }
-        }
-    }
-
-    public ZLMResult<StreamProxyResult> addStreamProxy(MediaServer mediaServer, String app, String stream, String url, boolean enable_audio, boolean enable_mp4, String rtp_type, Integer timeOut) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("vhost", "__defaultVhost__");
-        param.put("app", app);
-        param.put("stream", stream);
-        param.put("url", url);
-        param.put("enable_mp4", enable_mp4?1:0);
-        param.put("enable_audio", enable_audio?1:0);
-        param.put("rtp_type", rtp_type);
-        param.put("timeout_sec", timeOut);
-        // 拉流重试次数,默认为3
-        param.put("retry_count", 3);
-
-        String response = sendPost(mediaServer, "addStreamProxy",param, null);
-        if (response == null) {
-            return ZLMResult.getFailForMediaServer();
-        }else {
-            ZLMResult<StreamProxyResult> zlmResult = JSON.parseObject(response, new TypeReference<ZLMResult<StreamProxyResult>>() {});
             if (zlmResult == null) {
                 return ZLMResult.getFailForMediaServer();
             }else {

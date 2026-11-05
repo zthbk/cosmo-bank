@@ -9,8 +9,6 @@ import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.media.bean.RecordInfo;
 import com.genersoft.iot.vmp.service.bean.DownloadFileInfo;
 import com.genersoft.iot.vmp.service.bean.ErrorCallback;
-import com.genersoft.iot.vmp.streamProxy.bean.StreamProxy;
-import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 
 import java.util.List;
 import java.util.Map;
@@ -63,11 +61,7 @@ public interface IMediaNodeServerService {
 
     String getFfmpegCmd(MediaServer mediaServer, String cmdKey);
 
-    WVPResult<String> addStreamProxy(MediaServer mediaServer, String app, String stream, String url, boolean enableAudio, boolean enableMp4, String rtpType, Integer timeout);
-
     Boolean delFFmpegSource(MediaServer mediaServer, String streamKey);
-
-    Boolean delStreamProxy(MediaServer mediaServer, String streamKey);
 
     Map<String, String> getFFmpegCMDs(MediaServer mediaServer);
 
@@ -78,10 +72,6 @@ public interface IMediaNodeServerService {
     Integer startSendRtpTalk(MediaServer mediaServer, TalkRtpInfo talkRtpInfo, Integer timeout);
 
     Long updateDownloadProcess(MediaServer mediaServer, String app, String stream);
-
-    String startProxy(MediaServer mediaServer, StreamProxy streamProxy);
-
-    void stopProxy(MediaServer mediaServer, String streamKey, String type);
 
     List<String> listRtpServer(MediaServer mediaServer);
 

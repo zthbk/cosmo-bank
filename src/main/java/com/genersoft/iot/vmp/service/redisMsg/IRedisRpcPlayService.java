@@ -28,10 +28,6 @@ public interface IRedisRpcPlayService {
 
     void playPush(String serverId, Integer id, ErrorCallback<StreamInfo> callback);
 
-    void playProxy(String serverId, int id, ErrorCallback<StreamInfo> callback);
-
-    void stopProxy(String serverId, int id);
-
     DownloadFileInfo getRecordPlayUrl(String serverId, Integer recordId);
 
     AudioBroadcastResult audioBroadcast(String serverId, String deviceId, String channelDeviceId, Boolean broadcastMode);

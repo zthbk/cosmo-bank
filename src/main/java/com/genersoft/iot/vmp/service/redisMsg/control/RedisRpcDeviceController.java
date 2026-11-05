@@ -12,7 +12,6 @@ import com.genersoft.iot.vmp.gb28181.service.IDeviceService;
 import com.genersoft.iot.vmp.service.redisMsg.dto.RedisRpcController;
 import com.genersoft.iot.vmp.service.redisMsg.dto.RedisRpcMapping;
 import com.genersoft.iot.vmp.service.redisMsg.dto.RpcController;
-import com.genersoft.iot.vmp.streamProxy.service.IStreamProxyService;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +32,6 @@ public class RedisRpcDeviceController extends RpcController {
 
     @Autowired
     private IDeviceService deviceService;
-
-    @Autowired
-    private IStreamProxyService streamProxyService;
 
 
     private void sendResponse(RedisRpcResponse response){

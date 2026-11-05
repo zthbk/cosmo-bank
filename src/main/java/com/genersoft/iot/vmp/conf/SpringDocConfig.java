@@ -68,14 +68,6 @@ public class SpringDocConfig {
     }
 
     @Bean
-    public GroupedOpenApi publicApi3() {
-        return GroupedOpenApi.builder()
-                .group("3. 拉流转发")
-                .packagesToScan("com.genersoft.iot.vmp.streamProxy")
-                .build();
-    }
-
-    @Bean
     public GroupedOpenApi publicApi4() {
         return GroupedOpenApi.builder()
                 .group("4. 推流管理")

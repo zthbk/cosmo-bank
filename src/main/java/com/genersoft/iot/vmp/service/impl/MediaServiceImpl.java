@@ -12,8 +12,6 @@ import com.genersoft.iot.vmp.service.IReceiveRtpServerService;
 import com.genersoft.iot.vmp.service.IRecordPlanService;
 import com.genersoft.iot.vmp.service.IUserService;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
-import com.genersoft.iot.vmp.streamProxy.bean.StreamProxy;
-import com.genersoft.iot.vmp.streamProxy.service.IStreamProxyService;
 import com.genersoft.iot.vmp.utils.MediaServerUtils;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +26,6 @@ import java.util.Map;
 public class MediaServiceImpl implements IMediaService {
 
     private final IRedisCatchStorage redisCatchStorage;
-
-    private final IStreamProxyService streamProxyService;
 
     private final UserSetting userSetting;
 
@@ -64,7 +60,7 @@ public class MediaServiceImpl implements IMediaService {
             return receiveRtpServerService.getAuthenticateInfo(stream);
         }else {
             ResultForOnPublish result = new ResultForOnPublish();
-            // app 非 RTP_APP 的流， 如果是国标对讲或者广播则默认获取声音并且不录制， 其他的流先查询是否有代理配置，如果没有代理配置再进行鉴权
+            // app 非 RTP_APP 的流， 如果是国标对讲或者广播则默认获取声音并且不录制， 其他的流进行鉴权
             if (MediaStreamUtil.GB28181_TALK.equals(app) || MediaStreamUtil.GB28181_BROADCAST.equals(app)) {
                 result.setEnable_mp4(false);
                 result.setEnable_audio(true);
@@ -73,12 +69,6 @@ public class MediaServiceImpl implements IMediaService {
             if (MediaStreamUtil.LOAD_MP4_APP.equals(app) ) {
                 result.setEnable_mp4(false);
                 result.setEnable_audio(true);
-                return result;
-            }
-            StreamProxy streamProxyItem = streamProxyService.getStreamProxyByAppAndStream(app, stream);
-            if (streamProxyItem != null) {
-                result.setEnable_audio(streamProxyItem.isEnableAudio());
-                result.setEnable_mp4(streamProxyItem.isEnableMp4());
                 return result;
             }
             if (userSetting.getPushAuthority()) {
@@ -136,20 +126,7 @@ public class MediaServiceImpl implements IMediaService {
             }
         }
 
-        // 拉流代理
-        StreamProxy streamProxy = streamProxyService.getStreamProxyByAppAndStream(app, stream);
-        if (streamProxy != null) {
-            if (streamProxy.isEnableDisableNoneReader()) {
-                // 无人观看停用
-                // 修改数据
-                streamProxyService.stopByAppAndStream(app, stream);
-                return true;
-            } else {
-                // 无人观看不做处理
-                return false;
-            }
-        } else {
-            return userSetting.getStreamOnDemand();
-        }
+        // 默认按无人观看自动停流配置处理
+        return userSetting.getStreamOnDemand();
     }
 }

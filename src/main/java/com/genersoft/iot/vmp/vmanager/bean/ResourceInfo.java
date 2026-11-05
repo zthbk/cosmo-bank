@@ -5,7 +5,6 @@ public class ResourceInfo {
     private ResourceBaseInfo device;
     private ResourceBaseInfo channel;
     private ResourceBaseInfo push;
-    private ResourceBaseInfo proxy;
 
     public ResourceBaseInfo getDevice() {
         return device;
@@ -29,13 +28,5 @@ public class ResourceInfo {
 
     public void setPush(ResourceBaseInfo push) {
         this.push = push;
-    }
-
-    public ResourceBaseInfo getProxy() {
-        return proxy;
-    }
-
-    public void setProxy(ResourceBaseInfo proxy) {
-        this.proxy = proxy;
     }
 }

@@ -20,9 +20,7 @@ import com.genersoft.iot.vmp.media.service.IMediaNodeServerService;
 import com.genersoft.iot.vmp.media.zlm.dto.*;
 import com.genersoft.iot.vmp.service.bean.DownloadFileInfo;
 import com.genersoft.iot.vmp.service.bean.ErrorCallback;
-import com.genersoft.iot.vmp.streamProxy.bean.StreamProxy;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
-import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -272,30 +270,8 @@ public class ZLMMediaNodeServerService implements IMediaNodeServerService {
     }
 
     @Override
-    public WVPResult<String> addStreamProxy(MediaServer mediaServer, String app, String stream, String url,
-                                            boolean enableAudio, boolean enableMp4, String rtpType, Integer timeout) {
-        ZLMResult<StreamProxyResult> zlmResult = zlmresTfulUtils.addStreamProxy(mediaServer, app, stream, url, enableAudio, enableMp4, rtpType, timeout);
-        if (zlmResult.getCode() != 0) {
-            return WVPResult.fail(ErrorCode.ERROR100.getCode(), "添加代理失败");
-        }else {
-            StreamProxyResult data = zlmResult.getData();
-            if (data == null) {
-                return WVPResult.fail(ErrorCode.ERROR100.getCode(), "代理结果异常");
-            }else {
-                return WVPResult.success(data.getKey());
-            }
-        }
-    }
-
-    @Override
     public Boolean delFFmpegSource(MediaServer mediaServer, String streamKey) {
         ZLMResult<FlagData> flagDataZLMResult = zlmresTfulUtils.delFFmpegSource(mediaServer, streamKey);
-        return flagDataZLMResult != null && flagDataZLMResult.getCode() == 0;
-    }
-
-    @Override
-    public Boolean delStreamProxy(MediaServer mediaServer, String streamKey) {
-        ZLMResult<FlagData> flagDataZLMResult = zlmresTfulUtils.delStreamProxy(mediaServer, streamKey);
         return flagDataZLMResult != null && flagDataZLMResult.getCode() == 0;
     }
 
@@ -408,101 +384,6 @@ public class ZLMMediaNodeServerService implements IMediaNodeServerService {
             return null;
         }
         return mediaInfo.getDuration();
-    }
-
-    @Override
-    public String startProxy(MediaServer mediaServer, StreamProxy streamProxy) {
-        String dstUrl;
-        if ("ffmpeg".equalsIgnoreCase(streamProxy.getType())) {
-
-            String ffmpegCmd = getFfmpegCmd(mediaServer, streamProxy.getFfmpegCmdKey());
-
-            if (ffmpegCmd == null) {
-                throw new ControllerException(ErrorCode.ERROR100.getCode(), "ffmpeg拉流代理无法获取ffmpeg cmd");
-            }
-            String schema = getSchemaFromFFmpegCmd(ffmpegCmd);
-            if (schema == null) {
-                throw new ControllerException(ErrorCode.ERROR100.getCode(), "ffmpeg拉流代理无法从ffmpeg cmd中获取到输出格式");
-            }
-            int port;
-            String schemaForUri;
-            if (schema.equalsIgnoreCase("rtsp")) {
-                port = mediaServer.getRtspPort();
-                schemaForUri = schema;
-            }else if (schema.equalsIgnoreCase("flv")) {
-                if (mediaServer.getRtmpPort() == 0) {
-                    throw new ControllerException(ErrorCode.ERROR100.getCode(), "ffmpeg拉流代理播放时发现未设置rtmp端口");
-                }
-                port = mediaServer.getRtmpPort();
-                schemaForUri = "rtmp";
-            }else {
-                port = mediaServer.getRtmpPort();
-                schemaForUri = schema;
-            }
-
-            dstUrl = String.format("%s://%s:%s/%s/%s", schemaForUri, "127.0.0.1", port, streamProxy.getApp(),
-                    streamProxy.getStream());
-        }else {
-            dstUrl = String.format("rtsp://%s:%s/%s/%s", "127.0.0.1", mediaServer.getRtspPort(), streamProxy.getApp(),
-                    streamProxy.getStream());
-        }
-        MediaInfo mediaInfo = getMediaInfo(mediaServer, streamProxy.getApp(), streamProxy.getStream());
-
-        if (mediaInfo != null) {
-            closeStreams(mediaServer, streamProxy.getApp(), streamProxy.getStream());
-        }
-
-        ZLMResult<StreamProxyResult> zlmResult = null;
-        if ("ffmpeg".equalsIgnoreCase(streamProxy.getType())){
-            if (streamProxy.getTimeout() == 0) {
-                streamProxy.setTimeout(15);
-            }
-            zlmResult = zlmresTfulUtils.addFFmpegSource(mediaServer, streamProxy.getSrcUrl().trim(), dstUrl,
-                    streamProxy.getTimeout(), streamProxy.isEnableAudio(), streamProxy.isEnableMp4(),
-                    streamProxy.getFfmpegCmdKey());
-        }else {
-            zlmResult = zlmresTfulUtils.addStreamProxy(mediaServer, streamProxy.getApp(), streamProxy.getStream(), streamProxy.getSrcUrl().trim(),
-                    streamProxy.isEnableAudio(), streamProxy.isEnableMp4(), streamProxy.getRtspType(), streamProxy.getTimeout());
-        }
-        if (zlmResult.getCode() != 0) {
-            throw new ControllerException(zlmResult.getCode(), zlmResult.getMsg());
-        }else {
-            StreamProxyResult data = zlmResult.getData();
-            if (data == null) {
-                throw new ControllerException(zlmResult.getCode(), "代理结果异常： " + zlmResult);
-            }else {
-                return data.getKey();
-            }
-        }
-    }
-
-    private String getSchemaFromFFmpegCmd(String ffmpegCmd) {
-        ffmpegCmd = ffmpegCmd.replaceAll(" + ", " ");
-        String[] paramArray = ffmpegCmd.split(" ");
-        if (paramArray.length == 0) {
-            return null;
-        }
-        for (int i = 0; i < paramArray.length; i++) {
-            if (paramArray[i].equalsIgnoreCase("-f")) {
-                if (i + 1 < paramArray.length - 1) {
-                    return paramArray[i+1];
-                }else {
-                    return null;
-                }
-
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void stopProxy(MediaServer mediaServer, String streamKey, String type) {
-        ZLMResult<FlagData> zlmResult = zlmresTfulUtils.delStreamProxy(mediaServer, streamKey);
-        if (zlmResult == null) {
-            throw new ControllerException(ErrorCode.ERROR100.getCode(), "请求失败");
-        }else if (zlmResult.getCode() != 0) {
-            throw new ControllerException(zlmResult.getCode(), zlmResult.getMsg());
-        }
     }
 
     @Override

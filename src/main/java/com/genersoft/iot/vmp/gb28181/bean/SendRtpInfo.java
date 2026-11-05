@@ -241,8 +241,6 @@ public class SendRtpInfo {
     public void setPlayTypeByChannelDataType(Integer dataType, String sessionName) {
         if (dataType == ChannelDataType.STREAM_PUSH) {
             this.setPlayType(InviteStreamType.PUSH);
-        }else if (dataType == ChannelDataType.STREAM_PROXY){
-            this.setPlayType(InviteStreamType.PROXY);
         }else {
             this.setPlayType("Play".equalsIgnoreCase(sessionName) ? InviteStreamType.PLAY : InviteStreamType.PLAYBACK);
         }

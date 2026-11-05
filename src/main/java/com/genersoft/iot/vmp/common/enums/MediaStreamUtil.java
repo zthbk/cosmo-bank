@@ -9,10 +9,6 @@ public class MediaStreamUtil {
     public final static String GB28181_TALK = "talk";
     public final static String GB28181_BROADCAST = "broadcast";
 
-    public static boolean isKeywords(String app) {
-        return RTP_APP.equals(app) || GB28181_TALK.equals(app) || GB28181_BROADCAST.equals(app);
-    }
-
     public static boolean isGB28181(String app, String streamId) {
         return RTP_APP.equals(app) && !streamId.startsWith(RTP_STREAM_REST_PREFIX);
     }

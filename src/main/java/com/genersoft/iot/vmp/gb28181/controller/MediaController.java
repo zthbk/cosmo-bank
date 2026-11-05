@@ -7,10 +7,7 @@ import com.genersoft.iot.vmp.conf.security.SecurityUtils;
 import com.genersoft.iot.vmp.conf.security.dto.LoginUser;
 import com.genersoft.iot.vmp.media.service.IMediaServerService;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamAuthorityInfo;
-import com.genersoft.iot.vmp.service.bean.ErrorCallback;
-import com.genersoft.iot.vmp.service.bean.InviteErrorCode;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
-import com.genersoft.iot.vmp.streamProxy.service.IStreamProxyService;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.StreamContent;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
@@ -21,12 +18,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 
 @Tag(name  = "媒体流相关")
@@ -37,9 +30,6 @@ public class MediaController {
 
     @Autowired
     private IRedisCatchStorage redisCatchStorage;
-
-    @Autowired
-    private IStreamProxyService streamProxyService;
 
     @Autowired
     private IMediaServerService mediaServerService;
@@ -98,31 +88,7 @@ public class MediaController {
             wvpResult.setData(new StreamContent(streamInfo));
             result.setResult(wvpResult);
         }else {
-            ErrorCallback<StreamInfo> callback = (code, msg, streamInfoStoStart) -> {
-                if (code == InviteErrorCode.SUCCESS.getCode()) {
-                    WVPResult<StreamContent> wvpResult = WVPResult.success();
-                    if (useSourceIpAsStreamIp != null && useSourceIpAsStreamIp) {
-                        String host;
-                        try {
-                            URL url=new URL(request.getRequestURL().toString());
-                            host=url.getHost();
-                        } catch (MalformedURLException e) {
-                            host=request.getLocalAddr();
-                        }
-                        streamInfoStoStart.changeStreamIp(host);
-                    }
-                    if (!ObjectUtils.isEmpty(streamInfoStoStart.getMediaServer().getTranscodeSuffix())
-                            && !"null".equalsIgnoreCase(streamInfoStoStart.getMediaServer().getTranscodeSuffix())) {
-                        streamInfoStoStart.setStream(streamInfoStoStart.getStream() + "_" + streamInfoStoStart.getMediaServer().getTranscodeSuffix());
-                    }
-                    wvpResult.setData(new StreamContent(streamInfoStoStart));
-                    result.setResult(wvpResult);
-                }else {
-                    result.setResult(WVPResult.fail(code, msg));
-                }
-            };
-            //获取流失败，重启拉流后重试一次
-            streamProxyService.startByAppAndStream(app, stream, callback);
+            result.setResult(WVPResult.fail(ErrorCode.ERROR404.getCode(), "流信息未找到"));
         }
         return result;
     }

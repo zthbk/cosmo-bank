@@ -1,233 +1,191 @@
-![logo](doc/_media/logo.png)
-# 开箱即用的国标28181和部标808+1078协议视频平台
+# 岸端企业平台（GB28181 视频底座）
 
-[![Build Status](https://travis-ci.org/xia-chu/ZLMediaKit.svg?branch=master)](https://travis-ci.org/xia-chu/ZLMediaKit)
-[![license](http://img.shields.io/badge/license-MIT-green.svg)](https://github.com/xia-chu/ZLMediaKit/blob/master/LICENSE)
-[![JAVA](https://img.shields.io/badge/language-java-red.svg)](https://en.cppreference.com/)
-[![platform](https://img.shields.io/badge/platform-linux%20|%20macos%20|%20windows-blue.svg)](https://github.com/xia-chu/ZLMediaKit)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-yellow.svg)](https://github.com/xia-chu/ZLMediaKit/pulls)
+> 基于 WVP-Pro 裁剪后的船舶智能监控岸端视频底座 | Java 17 + Spring Boot 3.4.4 | 当前无前端工程
 
+本项目以 WVP-Pro 为视频与设备底座，保留 GB28181 设备接入、通道管理、实时点播、历史回放、对讲/广播、PTZ、ZLM 媒体节点、云录像、录像计划、设备告警、移动位置、用户权限与日志能力，面向船舶智能监控 2.0 岸端平台继续建设。
 
-WEB VIDEO PLATFORM是一个基于GB28181-2016、部标808、部标1078标准实现的开箱即用的网络视频平台，负责实现核心信令与设备管理后台部分，支持NAT穿透，支持海康、大华、宇视等品牌的IPC、NVR接入。支持国标级联，支持将不带国标功能的摄像机/直播流/直播推流转发到其他国标平台。
+当前仓库是**清理后的视频与设备底座**，不是完整的岸端企业平台。AI 告警、告警处置、统计报表、值班室播报、对象存储、全国平台对接和新 Vue 3 前端尚未交付。
 
-流媒体服务基于@夏楚 ZLMediaKit [https://github.com/ZLMediaKit/ZLMediaKit](https://github.com/ZLMediaKit/ZLMediaKit)   
-播放器使用@dexter jessibuca [https://github.com/langhuihui/jessibuca/tree/v3](https://github.com/langhuihui/jessibuca/tree/v3)  
-播放器使用@Numberwolf-Yanlong h265web.js [https://github.com/numberwolf/h265web.js](https://github.com/numberwolf/h265web.js)  
-前端页面基于vue-admin-template构建 [https://github.com/PanJiaChen/vue-admin-template?tab=readme-ov-file](https://github.com/PanJiaChen/vue-admin-template?tab=readme-ov-file)  
+## 1. 当前能力与边界
 
-# 应用场景：
-- 支持浏览器无插件播放摄像头视频。
-- 支持国标设备(摄像机、平台、NVR等)设备接入
-- 支持rtsp, rtmp，直播设备设备接入，充分利旧。
-- 支持国标级联。多平台级联。跨网视频预览。
-- 支持跨网网闸平台互联。
+| 能力 | 状态 | 说明 |
+|---|---|---|
+| GB28181 设备、通道、目录、心跳 | 保留 | SIP 信令、设备/通道管理、Catalog |
+| 实时点播、历史回放、对讲/广播、PTZ | 保留 | 依赖 ZLMediaKit |
+| ZLM 媒体节点、收流、录像 | 保留 | 仅保留 ZLM，ABL 已删除 |
+| 云录像、录像计划、录像下载 | 保留 | `/api/cloud/record`、`/api/record/plan`、`/api/gb_record` |
+| 设备告警、移动位置 | 保留 | 作为设备侧来源，不等同于 AI 告警业务 |
+| 用户、角色、API Key、日志 | 保留 | 登录、权限、审计基础 |
+| GB28181 平台级联 | 冻结 | 代码暂存，C3 删除前不对外承诺 |
+| JT1078/JT808、FTP | 已删除 | 终端不含 JT808，定位走 HTTPS |
+| 地图与矢量瓦片 | 已删除 | 无电子地图需求 |
+| ABL 媒体服务 | 已删除 | 媒体节点全部为 ZLM |
+| 流代理、推流、`/api/sy` | 已删除 | 无拉流源、无推流源、无第三方调用 |
+| 非 MySQL 数据库 | 已删除 | 仅支持 MySQL 8.4 |
+| 旧 Vue 2 前端 | 已删除 | 新 Vue 3 + Vite 6 前端待建 |
 
+## 2. 技术栈
 
-# 文档
-wvp使用文档 [https://doc.wvp-pro.cn](https://doc.wvp-pro.cn)  
-ZLM使用文档 [https://github.com/ZLMediaKit/ZLMediaKit](https://github.com/ZLMediaKit/ZLMediaKit)
+- 后端：Java 17、Spring Boot 3.4.4、Maven 单模块。
+- Web/安全：Spring MVC、Spring Security、WebSocket、springdoc-openapi、Knife4j。
+- 数据：MyBatis 3.0.4、PageHelper 2.1.1、MySQL 8.4（`mysql-connector-j` 8.4.0）、Redis。
+- 协议与媒体：Jain SIP 1.3.0-91、GB28181、OkHttp、ZLMediaKit 外部媒体服务。
+- 工具：Lombok、fastjson2、Caffeine、Guava、Hutool。
+- 前端：当前无 `web/` 工程；目标为 Vue 3 + Vite 6 + Element Plus 2.13，另行创建。
 
-# gitee仓库
-https://gitee.com/pan648540858/wvp-GB28181-pro.git
+## 3. 目录结构
 
-# 截图
-<table>
-    <tr>
-        <td ><center><img src="doc/_media/1.png" >登录页面 </center></td>
-        <td ><center><img src="doc/_media/2.png" >首页</center></td>
-    </tr>
-    <tr>
-        <td ><center><img src="doc/_media/3.png" >分屏播放 </center></td>
-        <td ><center><img src="doc/_media/4.png" >国标设备列表</center></td>
-    </tr>
-    <tr>
-        <td ><center><img src="doc/_media/5.png" >行政区划管理 </center></td>
-        <td ><center><img src="doc/_media/8.png" >业务分组管理</center></td>
-    </tr>
-    <tr>
-        <td ><center><img src="doc/_media/6.png" >录制计划</center></td>
-        <td ><center><img src="doc/_media/7.png" >平台信息</center></td>
-    </tr>
-</table>
+```text
+src/main/java/com/genersoft/iot/vmp/
+├── gb28181/        SIP 信令、设备/通道、点播、回放、级联、PTZ、位置
+├── media/          ZLMediaKit 接入、媒体 Bean/Event
+├── service/        跨模块服务、录像、告警、集群 RPC
+├── storager/       Redis 缓存与 DAO
+├── vmanager/       管理 API（用户、告警、云录像、录像计划、服务控制）
+├── web/gb28181/    外部兼容 API（/api/v1）
+├── conf/           配置、安全、调度、Redis
+└── utils/          时间、媒体、通用工具
+src/main/resources/ 配置、日志、SQL 映射
+docker/             Docker Compose、MySQL/Redis/ZLM/WVP/Nginx
+数据库/             按版本维护的 MySQL 脚本
+doc/                编程规范与站点
+文档/               改造方案、清理计划、C3 清单、前端契约
+```
 
-# 功能特性
-- [X] 集成web界面
-- [X] 兼容性良好
-- [X] 跨平台服务，一次编译多端部署， 可以同时用于x86和arm架构
-- [X] 国产环境适配，支持国产服务器部署，支持使用国产数据库，达梦、金仓。
-- [X] 接入设备
-  - [X] 视频预览
-  - [X] 支持主码流子码流切换
-  - [X] 无限制接入路数，能接入多少设备只取决于你的服务器性能
-  - [X] 云台控制，控制设备转向，拉近，拉远
-  - [X] 预置位查询，使用与设置
-  - [X] 查询NVR/IPC上的录像与播放，支持指定时间播放与下载
-  - [X] 无人观看自动断流，节省流量
-  - [X] 视频设备信息同步
-  - [X] 离在线监控
-  - [X] 支持直接输出RTSP、RTMP、HTTP-FLV、Websocket-FLV、HLS多种协议流地址
-  - [X] 支持通过一个流地址直接观看摄像头，无需登录以及调用任何接口
-  - [X] 支持UDP和TCP两种国标信令传输模式
-  - [X] 支持UDP和TCP两种国标流传输模式
-  - [X] 支持检索,通道筛选
-  - [X] 支持通道子目录查询
-  - [X] 支持过滤音频，防止杂音影响观看
-  - [X] 支持国标网络校时
-  - [X] 支持播放H264和H265
-  - [X] 报警信息处理，支持向前端推送报警信息
-  - [X] 语音对讲
-  - [X] 支持业务分组和行政区划树自定义展示以及级联推送
-  - [X] 支持订阅与通知方法
-    - [X] 移动位置订阅
-    - [X] 移动位置通知处理
-    - [X] 报警事件订阅
-    - [X] 报警事件通知处理
-    - [X] 设备目录订阅
-    - [X] 设备目录通知处理
-  -  [X] 移动位置查询和显示
-  - [X] 支持手动添加设备和给设备设置单独的密码
--  [X] 支持平台对接接入
--  [X] 支持国标级联
-  - [X] 国标通道向上级联
-    - [X] WEB添加上级平台
-    - [X] 注册
-    - [X] 心跳保活
-    - [X] 通道选择
-    - [X] 支持通道编号自定义, 支持每个平台使用不同的通道编号
-    - [X] 通道推送
-    - [X] 点播
-    - [X] 云台控制
-    - [X] 平台状态查询
-    - [X] 平台信息查询
-    - [X] 平台远程启动
-    - [X] 每个级联平台可自定义的虚拟目录
-    - [X] 目录订阅与通知
-    - [X] 录像查看与播放
-    - [X] GPS订阅与通知（直播推流）
-    - [X] 语音对讲
-  - [X] 支持同时级联到多个上级平台
-- [X] 支持自动配置ZLM媒体服务, 减少因配置问题所出现的问题;
-- [X] 支持流媒体节点集群，负载均衡。
-- [X] 支持启用udp多端口模式, 提高udp模式下媒体传输性能;
-- [X] 支持公网部署；
-- [X] 支持wvp与zlm分开部署，提升平台并发能力
-- [X] 支持拉流RTSP/RTMP，分发为各种流格式，或者推送到其他国标平台
-- [X] 支持推流RTSP/RTMP，分发为各种流格式，或者推送到其他国标平台
-- [X] 支持推流鉴权
-- [X] 支持接口鉴权
-- [X] 云端录像，推流/代理/国标视频均可以录制在云端服务器，支持预览和下载
-- [X] 支持打包可执行jar和war
-- [X] 支持跨域请求，支持前后端分离部署
-- [X] 支持Mysql，Postgresql，金仓等数据库
-- [X] 支持录制计划, 根据设定的时间对通道进行录制. 暂不支持将录制的内容转发到国标上级
-- [X] 支持国标信令集群
-- [X] 新增支持部标808和部标1078，大量新特性不一一列表了。支持作为网关被国标上级调用部标设备
-- [X] 支持电子地图。支持展示通道位置，支持在地图上修改通道位置。支持了数据分层抽稀数据能力，百万级数据也可以轻松展示。提供标准的矢量瓦片图层，常见地图引擎都可以直接展示。
-- [X] 借用zlm闭源版本新能力，可以支持录像保存至s3存储，支持minio。
-- [X] **全新虚拟线程支持，极大提升了平台的并发能力，局域网压测轻松接入五万+设备，这不是服务极限，这是我的压测工具和硬件测试服务器的极限，大家可自行测试。生产环境实际性能取决于服务器性能和网络带宽。**
-- [X] **支持报警订阅和报警管理，支持报警事件的展示和查询，支持报警时自动获取快照、播放录像。**
+入口类：`src/main/java/com/genersoft/iot/vmp/VManageBootstrap.java`。
 
-# 闭源内容
-  - [X] 支持开源所有功能
-  - [X] 支持国标28181-2022协议，已经过认证
-    - [X] 明确支持H265视频编码和AAC音频编码（开源已经支持）
-    - [X] 支持主辅码流切换（开源已经支持）
-    - [X] 支持GB18030编码格式，之前GB2312遇到未收录的字符经常有乱码。这个不会了
-    - [X] 支持图像抓拍，设备自行抓拍后上传到服务器，速度快省流量
-    - [X] PTZ 精准控制：包括控制，查询，订阅位置变化，支持精准设置云台的水平角度，垂直角度，变焦倍数
-    - [X] OSD配置
-    - [X] 视频画面遮挡配置
-    - [X] 支持巡航轨迹迹查询，巡航功能完善（（相当于开源基础上了多了回显））
-    - [X] 存储卡管理，支持状态查询，格式化
-    - [X] 设备升级
-    - [X] 支持目标跟踪，支持网页直接框选位置进行手动跟踪，也支持自动跟踪
-    - [X] 设备自带录像计划远程配置
-    - [X] 报警录像配置
-    - [X] 报警上报开关
-    - [X] 视频参数属性配置，支持对视频参数进行设置：包括编码格式，分辨率，帧率，码率，视频码率配置值(固定码率时必选)
-    - [X] 支持画面翻转控制，支持设置为基准画面，水平镜像（左右翻转），上下镜像（上下翻转）中心镜像（上下左右都翻转）
-    - [X] 支持看守位信息的查询（相当于开源基础上了多了回显）
-    - [X] 录像倒放，倒放拖动
-    - [X] 同时支持国标28181-2022与国标28181-2016双版本国标级联。可自行选择
-  - [X] ONVIF协议
-    - 自研协议实现，安全可靠。
-    - 设备检索
-    - 实时图像预览
-    - 录像回放、回放倍速控制
-    - 云台控制（八个方向）、预置位控制、绝对定位、看守位、聚焦控制
-    - 聚焦控制
-    - 设备重启
-    - 设备时间设置以及跟系统时间的差值比较
-    - 恢复出厂设置
-    - 自动获取设备品牌等信息、支持展示DNS信息、支持协议的展示
-    - 国标级联点播、自动点播等。
-  - [X] **海康-ISUP5.0/ISUP4.0/ISUP2.0/EHome**
-    - 设备注册
-    - 资源获取
-    - 预览
-    - 录像查询与回放
-    - 云台控制
-    - 预置位控制
-    - 报警，支持大量报警类型的解析与展示，
-      - 绊线检测
-      - 区域入侵
-      - 移动侦测
-      - 逆行检测
-      - 徘徊检测
-      - 人员聚集
-      - 声音异常
-      - 设备异常等。
-    - 抓图（设备直接上传快照图片到服务器，流量消耗低，无需服务端拉流解码）
-    - 对讲支持
-    - 设备配置（设备名称、循环录像等配置）
-    - 设备信息（设备序列号、类型等）
-    - 版本信息（软件、编码、面板、硬件的版本号）
-    - 编码配置（主辅码流分辨率、码率、帧率等配置）
-    - 图像参数配置（色调、对比度、亮度、饱和度配置）
-  - [X] 大华SDK
-    - 局域网设备发现
-    - 设备主动注册（用于服务器部署在公网时设备的注册）
-    - 通道获取
-    - 预览
-    - 录像回放
-    - 录像下载
-    - 云台控制，支持预置位控制、巡航组、巡迹、水平旋转、云台速度配置、开机动作、空闲动作、云台限位、定时任务、云台重启
-    - 抓图（设备直接上传快照图片到服务器，流量消耗低，无需服务端拉流解码）
-    - 喊话（单工）和对讲（双工）
-    - 相机配置，包括亮度、对比度、对比度、饱和度、色彩抑制、伽马、锐度、锐度抑制；视角的配置，提供正常、倒影、走廊模式、镜像的配置；曝光、背光、白平衡、日夜模式、数字变倍、聚焦、补光灯、透雾的配置
-    - 报警接收
-  - [ ] 国标35114协议（开发中...）
-  - [X] 国网B接口协议
-    - 设备注册
-    - 资源获取
-    - 预览
-    - 云台控制
-    - 预置位控制等，
-    - 可免费定制支持语音对讲、录像回放和抓拍图像。
-  - [X] 支持按权限分配可以使用的通道
-  - [X] 支持表格导出
-  - [X] 拉流代理支持按照品牌拼接url
-  - [X] 播放鉴权，给授权设备无法进行播放，拿到播放地址也不行
+## 4. 快速开始
 
+### 4.1 环境要求
 
-# 授权协议
-本项目自有代码使用宽松的MIT协议，在保留版权信息的情况下可以自由应用于各自商用、非商业的项目。 但是本项目也零碎的使用了一些其他的开源代码，在商用的情况下请自行替代或剔除； 由于使用本项目而产生的商业纠纷或侵权行为一概与本项目及开发者无关，请自行承担法律风险。 在使用本项目代码时，也应该在授权协议中同时表明本项目依赖的第三方库的协议
+- JDK 17（不要使用 JDK 21 或更高版本构建）。
+- Maven 3.9+。
+- MySQL 8.4。
+- Redis。
+- ZLMediaKit（ZLM）。
+- Docker 可选；全栈部署推荐 Docker Compose。
 
-# 技术支持
+当前没有前端工程，不需要 Node/npm。
 
-## 官方公众号
-<img src="doc/_media/gongzhonghao.jpg" width="40%" height="40%">
+### 4.2 初始化数据库
 
-> 为大家提供WVP最新的开发进展，未来规划等内容。欢迎关注。
+```bash
+mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS wvp DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+mysql -uroot -p wvp < 数据库/3.0.0/初始化-mysql-3.0.0.sql
+```
 
-> 有偿技术支持，一对一开发辅导，闭源内容合作请发送邮件到648540858@qq.com咨询
+数据库脚本按版本维护，无 Flyway/Liquibase；生产升级按 `数据库/<version>/更新-*.sql` 顺序执行。
 
-# 致谢
-感谢作者[夏楚](https://github.com/xia-chu) 提供这么棒的开源流媒体服务框架,并在开发过程中给予支持与帮助。     
-感谢作者[dexter langhuihui](https://github.com/langhuihui)和[Numberwolf-Yanlong](https://github.com/numberwolf/h265web.js) 开源这么好用的WEB播放器。      
-感谢各位大佬的赞助以及对项目的指正与帮助。包括但不限于代码贡献、问题反馈、资金捐赠等各种方式的支持！以下排名不分先后：  
-[lawrencehj](https://github.com/lawrencehj) [Smallwhitepig](https://github.com/Smallwhitepig) [swwhaha](https://github.com/swwheihei)
-[hotcoffie](https://github.com/hotcoffie) [xiaomu](https://github.com/nikmu) [TristingChen](https://github.com/TristingChen)
-[chenparty](https://github.com/chenparty) [Hotleave](https://github.com/hotleave) [ydwxb](https://github.com/ydwxb)
-[ydpd](https://github.com/ydpd) [szy833](https://github.com/szy833) [ydwxb](https://github.com/ydwxb) [Albertzhu666](https://github.com/Albertzhu666)
-[mk1990](https://github.com/mk1990) [SaltFish001](https://github.com/SaltFish001)
+### 4.3 配置
+
+- `src/main/resources/application.yml` 默认激活 `dev`。
+- `application-dev.yml`、`application-local.yml` 等私有 profile 被 gitignore，不提交。
+- `src/main/resources/配置详情.yml` 是配置项示例，不能直接用于启动。
+- 至少配置：
+  - `spring.datasource.url/username/password`：MySQL。
+  - `spring.data.redis.host/port/database`：Redis。
+  - `sip.id/domain/password/port`：GB28181。
+  - `media.ip/http-port/secret`：ZLM 地址与 API secret。
+  - `user-settings.*`：点播超时、录像、按需拉流等。
+- 密码、ZLM secret、设备口令只放本地未跟踪配置或环境变量，不写入 README、文档、提交信息或接口。
+
+### 4.4 本地启动（IDE / Maven）
+
+本地开发可以使用本机 MySQL，Redis 与 ZLM 用 Docker 启动；也可以全部使用 Docker Compose。
+
+```bash
+# 编译
+mvn -q -DskipTests compile
+
+# 从源码启动，激活 dev；使用本地私有配置时追加 local
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+mvn spring-boot:run -Dspring-boot.run.profiles=dev,local
+```
+
+默认端口：
+
+- WVP HTTP：`18080`。
+- SIP：`8116`。
+- ZLM HTTP：`9092`（本地配置示例；以实际配置为准）。
+
+首次启动需要设置管理员密码：
+
+```bash
+WVP_ADMIN_PASSWORD='满足复杂度要求的管理员密码' \
+mvn spring-boot:run -Dspring-boot.run.profiles=dev,local
+```
+
+`AdminPasswordInitializer` 只在管理员仍为默认密码时设置，已改密码不会覆盖。
+
+### 4.5 Docker Compose 全栈
+
+```bash
+cd docker
+docker compose up -d
+```
+
+- 启动 MySQL 8.4、Redis、ZLM、WVP、Nginx。
+- 默认通过 `8080` 访问 Nginx，SIP 端口默认 `8116`；端口以 `docker/.env` 为准。
+- `docker/.env` 中 `MYSQL_PASSWORD`、`MYSQL_ROOT_PASSWORD`、`SIP_Password`、`WVP_ADMIN_PASSWORD`、`ZLM_SECRET` 等为必填项，默认可能为空；需在本地填写，且不要提交真实口令。
+- 停止：`docker compose down`。
+
+## 5. 访问与接口
+
+- 管理端页面：当前无前端工程，接口可直接通过 Knife4j/OpenAPI 调试。
+- API 文档：`http://127.0.0.1:18080/doc.html`。
+- OpenAPI：`/v3/api-docs`。
+- 主要接口分组：
+  - `/api/common/channel`：公共通道、分组、区域、点播、对讲、广播。
+  - `/api/play`、`/api/playback`、`/api/front-end`：播放、回放、PTZ。
+  - `/api/gb_record`：国标录像查询与下载。
+  - `/api/cloud/record`、`/api/record/plan`：云录像与录像计划。
+  - `/api/alarm`：设备告警。
+  - `/api/position`：移动位置。
+  - `/api/user`、`/api/role`、`/api/userApiKey`：用户、角色、API Key。
+  - `/api/server`、`/api/log`：服务状态与日志。
+  - `/api/v1/*`：外部兼容 API，响应结构不要随意修改。
+- `/api/platform/*` 平台级联接口仍存在但已冻结，不作为当前交付能力。
+
+## 6. 构建与测试
+
+```bash
+mvn -q -DskipTests compile
+mvn -q -DskipTests test-compile
+mvn -q -DskipTests package
+mvn -q clean package -DskipTests
+```
+
+- 删除过类文件后必须使用 `mvn clean package`，否则 `target/classes` 中的旧 class 可能被打进 jar。
+- `pom.xml` 硬编码 `<skipTests>true</skipTests>`，`-DskipTests=false` 不会执行测试；需要跑测试时用 IDE，或临时改为 `false` 后恢复。
+- 测试编译仍会执行，改动 DAO/Service/测试后必须跑 `test-compile`。
+- 当前没有 CI workflow，所有验证在本地完成。
+
+## 7. 当前清理状态与已知限制
+
+- 已完成：B4（非 MySQL 支持）、B1（JT1078/FTP）、B3（地图/瓦片）、C4（ABL）、C1（流代理）、C2（推流与 `/api/sy`）。
+- 进行中：C3 GB28181 平台级联，处于冻结观察期；未完成 SDP 地址重构前不要删除 `Platform` 类。
+- 旧 `web/` 已删除，新前端待建；不要执行 `cd web`、`npm install` 或旧前端构建命令。
+- 已删除模块的数据库表和通道数据可能仍存在（如 `wvp_jt_*`、`wvp_stream_proxy`、`wvp_stream_push`、`data_type=2/3`），但代码已不依赖，清理需单独备份、停写、观察。
+- `doc/编程规范.md` 与上游 WVP 文档中仍可能残留 JT1078、流代理、推流、多数据库等旧描述；以当前代码和清理计划为准，不要据此恢复已删除模块。
+- `application-*.yml` 不会打进 jar；`java -jar` 从仓库根目录启动会缺少 DataSource 配置。请从源码/IDE 启动，或显式提供外部配置。
+- 本地 `target/`、`logs/`、`config/`、`打包/`、Docker 数据卷、私有 profile 与本地 compose 覆盖文件均不应提交。
+
+## 8. 文档索引
+
+| 文档 | 用途 |
+|---|---|
+| `doc/编程规范.md` | 分层、Controller、事务、DAO、日志、并发、测试规范（部分内容仍描述已删除模块） |
+| `文档/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚（本地计划） |
+| `文档/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵（本地清单） |
+| `文档/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 |
+| `文档/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 |
+| `文档/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 |
+| `docker/docker-compose.yml`、`docker/media/config.ini` | 部署编排与 ZLM 配置 |
+| `数据库/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 |
+
+## 9. 提交约定
+
+- 提交信息使用中文，简短明确；一个清理批次或一个功能点一个提交。
+- 未经明确要求不推送远程、不重写历史。
+- 不提交 `target/`、`logs/`、`config/`、`打包/`、Docker 数据卷、私有 `application-*.yml`、本地 compose 覆盖文件、真实密码/密钥。
+- 提交前至少执行 `compile`、`test-compile`、`git diff --check`；涉及删除类时执行 `mvn clean package`。

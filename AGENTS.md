@@ -1,50 +1,97 @@
 # AGENTS.md
 
-## 概览
+## 项目概览
 
-- WVP-Pro：GB28181 + JT808/JT1078 视频平台。后端为 Spring Boot 3.4 / Java 21 单 Maven 模块；前端在 `web/`（Vue 2 + Element UI）。
-- 入口：`src/main/java/com/genersoft/iot/vmp/VManageBootstrap.java`。
-- 后端代码根目录：`src/main/java/com/genersoft/iot/vmp/`。
+- 技术栈：Java 17 + Spring Boot 3.4.4 单 Maven 模块；Spring Security、MyBatis、PageHelper、Redis、MySQL 8.4、Jain SIP、OkHttp、ZLMediaKit。
+- 核心依赖：`spring-boot-starter-web/security/data-redis`、`mybatis-spring-boot-starter`、`mysql-connector-j` 8.4、`jain-sip-ri`、`okhttp`、`springdoc/knife4j`、`fastjson2`、`caffeine`、`lombok`。
+- 部署方式：`docker/docker-compose.yml` 编排 MySQL 8.4、Redis、ZLM、WVP、Nginx；本地开发可只用 Docker 起 Redis/ZLM，WVP 从 IDE 或 Maven 启动。
+- 入口：`src/main/java/com/genersoft/iot/vmp/VManageBootstrap.java`；后端代码根目录：`src/main/java/com/genersoft/iot/vmp/`。
+- 当前状态：旧 `web/` 已删除，新 Vue 3 前端尚未创建；JT1078/FTP、地图/瓦片、ABL、流代理、推流与 `/api/sy`、非 MySQL 数据库支持已删除；C3 平台级联处于冻结观察期。
 
-## 关键路径
+## 常用命令
 
-- `gb28181/`：SIP 信令、设备/通道、点播、级联。核心类：`service/impl/PlayServiceImpl`、`InviteStreamServiceImpl`、`DialogTerminationService`；会话在 `session/SipInviteSessionManager`，信令在 `transmit/`。
-- `jt1078/`：JT808/JT1078 协议与业务；`media/`：ZLMediaKit 接入；`streamProxy/`、`streamPush/`：拉流/推流代理。
-- `web/`、`vmanager/`：REST 接口；`service/`：跨模块服务；`conf/`：配置、安全、调度（`DynamicTask`）；`storager/`：Redis 缓存。
-- `dao/*Provider`：MyBatis 动态 SQL，必须用 `#{}`，禁止拼字符串。
-- `数据库/<version>/`：按版本维护 SQL，无 Flyway/Liquibase。
+```bash
+# 编译（日常最小检查）
+mvn -q -DskipTests compile
 
-## 架构与状态
+# 测试编译（改 DAO/Service/测试后必须执行）
+mvn -q -DskipTests test-compile
 
-- 运行态数据分三层：MySQL（配置/历史）、Redis（设备、InviteInfo、SIP 事务）、JVM 内存（等待回调、任务表）。修改点播/会话逻辑时三处都要考虑。
-- `SipInviteSessionManager` 将 SIP 事务持久化到 Redis，WVP 重启后仍可能存在。
-- 设备 BYE/事务清理优先复用 `DialogTerminationService`，不要新增直接 `cmder.streamByeCmd` 的旁路。
-- `DynamicTask` 的 key 全局有效；完成/取消的 future 必须移除，否则无法重新注册。
+# 打包；删除过类文件时必须先 clean，避免旧 class 残留进 jar
+mvn -q -DskipTests package
+mvn -q clean package -DskipTests
 
-## 构建与运行
+# 本地启动
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+# 使用本机 MySQL 和本地 Redis/ZLM 配置时
+mvn spring-boot:run -Dspring-boot.run.profiles=dev,local
 
-- 使用 JDK 21；快速编译：`mvn -q -DskipTests compile`。
-- 后端：`mvn spring-boot:run -Dspring-boot.run.profiles=dev`。`application.yml` 默认激活的 `274-dev` 被 gitignore，新 clone 需改用 `dev` 或本地私有 profile。
-- 前端：`cd web && npm install`；`npm run dev`（9528，代理到 18080）；`npm run build:prod` 输出到 `src/main/resources/static`（gitignore）。`mvn package` 不会构建前端。
-- 全栈：`cd docker && docker compose up -d`。
+# 全栈 Docker
+cd docker && docker compose up -d
+```
 
-## 测试
+- 运行单测：`pom.xml` 硬编码 `<skipTests>true</skipTests>`，`-DskipTests=false` 无效；用 IDE，或临时改为 `false` 后执行并恢复。
+- 代码检查：本项目没有 Checkstyle/Spotless；以 `compile`、`test-compile`、`package` 和 `git diff --check` 为准。
+- 前端：当前没有 `web/` 工程，不要执行 `cd web`、`npm install` 或 `npm run build`；新前端另行创建。
+- 本地默认端口：HTTP 18080、SIP 8116；ZLM HTTP 9092，媒体端口以 `docker/.env` 和实际配置为准。
 
-- JUnit 5 + Mockito 单测，无需外部服务。
-- `pom.xml` 硬编码 `<skipTests>true</skipTests>`，`-DskipTests=false` 无效；用 IDE 或临时改为 `false`，跑完恢复。
-- 较新 JDK 下 Mockito 可能失败，务必使用 JDK 21。
+## 架构约束
 
-## 编程规范
+- **只支持 MySQL 8.4。** 不要新增 PostgreSQL、Kingbase、达梦、H2 的驱动、SQL 脚本、方言分支或 `databaseId` 分支。
+- **运行态分三层：** MySQL（配置/历史）、Redis（设备、InviteInfo、SIP 事务、集群消息）、JVM（等待回调、DynamicTask）。修改点播/会话逻辑必须同时考虑三层及清理路径。
+- **SIP 事务以 Redis 为权威。** `SipInviteSessionManager` 的事务重启后仍可能存在；设备 BYE/事务清理优先复用 `DialogTerminationService`，不要新开直接 `cmder.streamByeCmd` 的旁路。
+- **DAO 参数必须绑定。** 动态 SQL 放 `dao/provider`，外部参数一律 `#{}`；`${}` 只能用于白名单排序字段或内部常量，禁止拼接用户输入；不新增 XML Mapper。
+- **已删除模块不得恢复。** 不要重新引入 `jt1078/`、`conf/ftpServer/`、`media/abl/`、`streamProxy/`、`streamPush/`、`web/custom/`（`/api/sy`）、地图/矢量瓦片或 `MediaStreamUtil.isKeywords`。C3 平台级联未完成前，不要按旧文档恢复平台分支。
+- **Controller 保持薄。** 参数校验和响应组织放 Controller，业务与 SQL/Redis 放 Service/DAO；普通返回由 `GlobalResponseAdvice` 包装为 `WVPResult`，业务错误抛 `ControllerException`。
 
-- 详细规范见 [`doc/编程规范.md`](doc/编程规范.md)；新代码遵守，存量代码逐步靠拢。
-- Controller 保持薄，业务放 Service；普通返回由 `GlobalResponseAdvice` 包装为 `WVPResult`，业务错误抛 `ControllerException`。
-- 重点约束：DAO 外部参数用 `#{}`、敏感信息不入日志/接口/配置、并发状态清理必须明确归属并使用条件删除、修 bug 补回归测试。
+## 编码规范
 
-## 约定
+- 使用 JDK 17 语法和 API；不要使用虚拟线程、JDK 21+ 专属接口或依赖更高版本运行时的库。
+- 修改前先读目标文件和相关调用链；不做无关格式化、重排、顺手重构。删除类/模块时同步清理测试、配置、常量和引用。
+- 区分 `deviceId`/`channelId`（国标编码，通常 `String`）与 `id`/`channelDbId`/`dataDeviceId`（数据库主键，通常 `Integer`）；不要混用参数名。
+- 时间统一走 `utils/DateUtil`，时区固定 `Asia/Shanghai`；不要新增 `SimpleDateFormat`，不要恢复已删除的 JT1078 时间格式方法。
+- 不使用 `Optional`；列表/Map 返回空集合而不是 `null`；判空优先 Spring `ObjectUtils`/`StringUtils`，注意不要与 Apache Commons 同名类混用。
+- `@Transactional` 只放在 `ServiceImpl` 的 public 方法；事务只包数据库写操作，不要把 SIP 等待、ZLM HTTP、Redis 轮询放进去；同类内部调用会绕过代理。
+- `PageHelper.startPage(page, count)` 后必须紧接查询，中间不要插入其他 SQL。
+- 日志用 `@Slf4j` + 参数化占位符，中文、带模块前缀；禁止 `System.out`、`printStackTrace`、字符串拼接日志；禁止打印密码、Token、Authorization、Redis 密码、设备口令、pushKey 或完整敏感实体。
+- 固定取值用 `ErrorCode`、`InviteErrorCode`、`InviteSessionType` 等常量/枚举，不要在 Java 代码散落魔法值。
+- 修 bug 补回归测试；测试用 JUnit 5 + Mockito，不启动 Spring 上下文，不依赖 MySQL/Redis/ZLM；方法名用英文 `method_condition_expected`。
 
-- 思考以及正文输出以中文为主。
-- 注释、日志、提交信息以中文为主。
-- 适时重构，避免小修小补导致代码臃肿；优先复用现有服务和抽象。
-- 不要提交 `target/`、`logs/`、`data/`、`web/node_modules/`、`src/main/resources/static/` 及私有 `application-*.yml`。
-- 审核 PR 先说结论，建议合并 / 可合并但需处理 / 建议发回作者修改；PR打算做什么；PR描述是否成立；合并后有哪些需要继续修改的内容。
-- 注重隐私和安全，避免在日志、提交信息、配置文件以及接口中泄露敏感信息。
+## 文档索引
+
+| 文档 | 用途 | 注意 |
+|---|---|---|
+| `doc/编程规范.md` | 分层、Controller、事务、DAO、日志、并发、测试规范 | 仍提及已删除的 JT1078/流代理/推流/多数据库，按当前代码取舍 |
+| `文档/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚 | 本地计划，不随代码提交 |
+| `文档/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵 | C3 执行前必须逐项复核 |
+| `文档/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 | 本地设计文档 |
+| `文档/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 | 本地设计文档 |
+| `文档/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 | 旧 `web/` 已删除 |
+| `README.md` | 当前项目说明、启动、部署与清理状态 | 与本文件同步维护 |
+| `doc/README.md` | 上游 WVP 文档站点说明 | 仍描述 JT1078/旧前端，不能作为当前功能清单 |
+| `docker/docker-compose.yml`、`docker/media/config.ini` | 部署编排与 ZLM 配置 | 本地覆盖文件不要提交 |
+| `数据库/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 | 无 Flyway/Liquibase，按版本手工维护 |
+
+## Git 工作流
+
+- 当前主分支 `master`；未经用户明确要求，不推送远程、不重写历史。
+- 提交信息使用中文，简短明确（建议不超过 20 字）；一个清理批次一个提交，不混合无关改动。
+- 提交前至少执行：`mvn -q -DskipTests compile`、`mvn -q -DskipTests test-compile`；涉及删除类时用 `mvn -q clean package -DskipTests`；再执行 `git diff --check` 和相关引用检索。
+- 不提交：`target/`、`logs/`、`config/`、`打包/`、`docker/volumes/`、本地 `application-*.yml`、本地 compose 覆盖文件、ZLM 开发配置、真实口令/密钥。
+- `docker/.env` 已被 Git 跟踪且部分必填值为空；不要写入并提交真实口令，使用本地未跟踪环境变量或内联值。
+- PR/评审先给结论：建议合并 / 可合并但需处理 / 建议发回作者修改；再说明 PR 目的、描述是否成立、合并后待办。
+
+## 已知陷阱
+
+- **`mvn package` 不清理旧 class。** 删除类后直接 package 可能把 `target/classes` 中的旧类打进 jar（曾出现已删除的 `ftpServer` 类）；删除类后必须 `mvn clean package`。
+- **`application-*.yml` 不打进 jar。** `maven-jar-plugin` 排除 `application.yml`、`application-*.yml`，`maven-resources-plugin` 只复制到 `target/`；`java -jar` 从仓库根目录启动会缺少 DataSource 配置。用源码/IDE 启动，或显式指定外部配置目录。
+- **`pom.xml` 硬编码 `skipTests=true`。** `-DskipTests=false` 不会执行测试；`test-compile` 仍会编译测试。需要真正跑测试时改 IDE 配置或临时改 pom 后恢复。
+- **本地配置默认不完整。** `application.yml` 激活 `dev`，`application-dev.yml`/`application-local.yml` 被 gitignore；新环境需自行创建本地 profile，MySQL 密码只放未跟踪配置，不提交。
+- **`docker/.env` 必填值可能为空。** 直接 `docker compose` 会因 `MYSQL_PASSWORD`、`SIP_Password`、`WVP_ADMIN_PASSWORD`、`ZLM_SECRET` 为空而插值失败；本地起 Redis/ZLM 可用内联占位值，真实部署再填本地 env。
+- **管理员初始密码。** 初始化 SQL 不保留可用默认口令；首次启动需设置 `WVP_ADMIN_PASSWORD`（满足复杂度），否则 `AdminPasswordInitializer` 只告警，登录密码仍不可用。
+- **C3 不能直接删 `Platform`。** 必须先把 `SIPRequestProcessorParent` 的 SDP 应答改为设备 IP/端口/设备 ID 重载，去掉 `InviteRequestProcessor` 中的 `new Platform()` 地址载体，再处理 `SsrcTransaction.platformId`、`SendRtpInfo.sendToPlatform`、`AudioBroadcastCatch.isFromPlatform`。
+- **`doc/编程规范.md` 与上游 WVP 文档已过时。** 它们仍描述 JT1078/JT808、流代理、推流、旧 Vue 2 前端和多数据库；根目录 `README.md` 已按当前项目重写。以当前代码、`README.md`、本文件和清理计划为准，不要据此恢复已删除模块。
+- **已删模块的表可能仍在。** `wvp_jt_terminal`、`wvp_jt_channel`、`wvp_stream_proxy`、`wvp_stream_push` 等可能尚未清理，但代码已不依赖；不要新增对这些表的查询。
+- **`GlobalResponseAdvice` 有路径例外。** `/api/v1`、`/api/video-`、`/index/hook` 等不自动包装；新增兼容接口时确认响应结构，避免重复包 `WVPResult`。
+- **`DynamicTask` key 全局唯一。** 完成、取消、超时后必须移除 future，否则同 key 无法重新注册；`DeferredResult` 只能成功一次，清理按本次请求拥有的状态做条件删除。
+- **当前没有 CI workflow。** `.github/` 已删除，不要假设推送后自动编译；所有验证在本地完成。

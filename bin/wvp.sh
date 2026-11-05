@@ -34,17 +34,24 @@ cat <<EOF
 
 EOF
 
-#配置jdk的路径
-export JAVA_HOME=/usr/local/java/jdk1.8.0_202   #此处为JDK路径
-export JRE_HOME=${JAVA_HOME}/jre
-export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+# JDK 17 路径，可通过 JAVA_HOME 环境变量覆盖
+export JAVA_HOME=${JAVA_HOME:-/usr/local/java/jdk-17}
+export CLASSPATH=.:${JAVA_HOME}/lib
 export PATH=${JAVA_HOME}/bin:$PATH
 
-# WVP-pro defines
-AppName=wvp-pro-2.7.2-05131055.jar
-AppHome="/root/polaris/wvp/"
-# JVM参数
-JVM_OPTS="-Dname=$AppName  -Duser.timezone=Asia/Shanghai -Xms512m -Xmx2048m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCDateStamps  -XX:+PrintGCDetails -XX:NewRatio=1 -XX:SurvivorRatio=30 -XX:+UseParallelGC -XX:+UseParallelOldGC"
+# WVP-pro defines，可通过 APP_NAME、APP_HOME 环境变量覆盖
+AppHome=${APP_HOME:-/root/polaris/wvp/}
+if [ -n "$APP_NAME" ]; then
+    AppName=$APP_NAME
+else
+    AppName=$(basename "$(ls -t "${AppHome}"/wvp-pro-*.jar 2>/dev/null | head -n 1)")
+fi
+if [ -z "$AppName" ]; then
+    echo "未找到 wvp-pro-*.jar，请设置 APP_NAME 或检查 APP_HOME"
+    exit 1
+fi
+# JVM参数（JDK 17）
+JVM_OPTS="-Dname=$AppName -Duser.timezone=Asia/Shanghai -Xms512m -Xmx2048m -XX:+HeapDumpOnOutOfMemoryError -XX:NewRatio=1 -XX:SurvivorRatio=30"
 
 function start() {
 	log "======================= 开启流媒体服务 ======================="

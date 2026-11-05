@@ -15,7 +15,6 @@ import com.genersoft.iot.vmp.media.bean.MediaInfo;
 import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.media.event.mediaServer.MediaServerChangeEvent;
 import com.genersoft.iot.vmp.media.service.IMediaServerService;
-import com.genersoft.iot.vmp.service.IMapService;
 import com.genersoft.iot.vmp.service.bean.MediaServerLoad;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.streamProxy.service.IStreamProxyService;
@@ -78,9 +77,6 @@ public class ServerController {
     @Autowired
     private IStreamProxyService proxyService;
 
-
-    @Autowired(required = false)
-    private IMapService mapService;
 
     @Value("${server.port}")
     private int serverPort;
@@ -385,25 +381,5 @@ public class ServerController {
         }
         double tbNumber = gbNumber / FORMAT;
         return new DecimalFormat("#.##TB").format(tbNumber);
-    }
-
-    @GetMapping(value = "/map/config")
-    @ResponseBody
-    @Operation(summary = "获取地图配置", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    public List<MapConfig> getMapConfig() {
-        if (mapService == null) {
-            return Collections.emptyList();
-        }
-        return mapService.getConfig();
-    }
-
-    @GetMapping(value = "/map/model-icon/list")
-    @ResponseBody
-    @Operation(summary = "获取地图配置图标", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    public List<MapModelIcon> getMapModelIconList() {
-        if (mapService == null) {
-            return Collections.emptyList();
-        }
-        return mapService.getModelList();
     }
 }

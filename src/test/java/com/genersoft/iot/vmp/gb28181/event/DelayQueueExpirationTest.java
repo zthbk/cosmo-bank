@@ -6,7 +6,6 @@ import com.genersoft.iot.vmp.gb28181.task.deviceSubscribe.SubscribeTask;
 import com.genersoft.iot.vmp.gb28181.task.deviceSubscribe.SubscribeTaskRunner;
 import com.genersoft.iot.vmp.gb28181.task.platformStatus.PlatformStatusTaskRunner;
 import com.genersoft.iot.vmp.gb28181.transmit.event.request.impl.message.response.cmd.PresetQueryResponseMessageHandler;
-import com.genersoft.iot.vmp.gb28181.utils.VectorTileCatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -51,16 +50,6 @@ class DelayQueueExpirationTest {
         ReflectionTestUtils.setField(runner, "delayQueue", queue);
 
         assertDoesNotThrow(runner::expirationCheck);
-        assertPollInsteadOfBlocking(queue);
-    }
-
-    @Test
-    void vectorTileCleanup_shouldNotBlockWhenEntryIsRemovedAfterQueueCheck() throws Exception {
-        VectorTileCatch cache = new VectorTileCatch();
-        DelayQueue<Delayed> queue = queueWithRemovalRace();
-        ReflectionTestUtils.setField(cache, "delayQueue", queue);
-
-        assertDoesNotThrow(cache::expirationCheck);
         assertPollInsteadOfBlocking(queue);
     }
 

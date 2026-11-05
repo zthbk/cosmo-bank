@@ -1,7 +1,6 @@
 package com.genersoft.iot.vmp.gb28181.dao;
 
 import com.genersoft.iot.vmp.gb28181.bean.*;
-import com.genersoft.iot.vmp.gb28181.controller.bean.Extent;
 import com.genersoft.iot.vmp.gb28181.dao.provider.ChannelProvider;
 import com.genersoft.iot.vmp.gb28181.dao.provider.MysqlCommonChannelUpsertProvider;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
@@ -653,14 +652,6 @@ public interface CommonGBChannelMapper {
     @SelectProvider(type = ChannelProvider.class, method = "queryCameraChannelById")
     CameraChannel queryCameraChannelById(@Param("gbId") Integer id);
 
-    @Update("<script> " +
-            "<foreach collection='channels' index='index' item='item' separator=';'> " +
-            "UPDATE wvp_device_channel SET map_level=#{item.mapLevel} " +
-            "WHERE id = #{item.gbId}" +
-            "</foreach> " +
-            "</script>")
-    void saveLevel(List<CommonGBChannel> channels);
-
     @SelectProvider(type = ChannelProvider.class, method = "queryCameraChannelByIds")
     List<CameraChannel> queryCameraChannelByIds(List<CommonGBChannel> channelList);
 
@@ -669,31 +660,4 @@ public interface CommonGBChannelMapper {
 
     @SelectProvider(type = ChannelProvider.class, method = "queryMeetingChannelList")
     List<CameraChannel> queryMeetingChannelList(@Param("business") String business);
-
-    @Update("UPDATE wvp_device_channel SET map_level=null")
-    int resetLevel();
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryCameraChannelInBox")
-    List<CommonGBChannel> queryCameraChannelInBox(@Param("minLon") double minLon, @Param("maxLon") double maxLon,
-                                                  @Param("minLat") double minLat, @Param("maxLat") double maxLat);
-
-    @Select("select " +
-            "MAX(coalesce(gb_longitude, longitude)) as maxLng,  " +
-            "MIN(coalesce(gb_longitude, longitude)) as minLng,  " +
-            "MAX(coalesce(gb_latitude, latitude)) as maxLat,  " +
-            "MIN(coalesce(gb_latitude, latitude)) as minLat  " +
-            " from wvp_device_channel " +
-            " where channel_type = 0")
-    Extent queryExtent();
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryAllWithPosition")
-    List<CommonGBChannel> queryAllWithPosition();
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInExtent")
-    List<CommonGBChannel> queryListInExtent(@Param("minLng") double minLng, @Param("maxLng") double maxLng,
-                                            @Param("minLat") double minLat, @Param("maxLat") double maxLat);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListOutExtent")
-    List<CommonGBChannel> queryListOutExtent(@Param("minLng") double minLng, @Param("maxLng") double maxLng,
-                                            @Param("minLat") double minLat, @Param("maxLat") double maxLat);
 }

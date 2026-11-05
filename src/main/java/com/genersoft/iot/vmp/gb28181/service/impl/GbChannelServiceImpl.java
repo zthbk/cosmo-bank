@@ -1,12 +1,9 @@
 package com.genersoft.iot.vmp.gb28181.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.genersoft.iot.vmp.common.VideoManagerConstants;
 import com.genersoft.iot.vmp.common.enums.ChannelDataType;
-import com.genersoft.iot.vmp.conf.DynamicTask;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
 import com.genersoft.iot.vmp.gb28181.bean.*;
-import com.genersoft.iot.vmp.gb28181.controller.bean.Extent;
 import com.genersoft.iot.vmp.gb28181.dao.CommonGBChannelMapper;
 import com.genersoft.iot.vmp.gb28181.dao.GroupMapper;
 import com.genersoft.iot.vmp.gb28181.dao.PlatformChannelMapper;
@@ -15,38 +12,22 @@ import com.genersoft.iot.vmp.gb28181.event.EventPublisher;
 import com.genersoft.iot.vmp.gb28181.event.channel.ChannelEvent;
 import com.genersoft.iot.vmp.gb28181.service.IGbChannelService;
 import com.genersoft.iot.vmp.gb28181.service.IPlatformChannelService;
-import com.genersoft.iot.vmp.gb28181.utils.VectorTileCatch;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
 import com.genersoft.iot.vmp.streamPush.bean.StreamPush;
-import com.genersoft.iot.vmp.utils.Coordtransform;
 import com.genersoft.iot.vmp.utils.DateUtil;
-import com.genersoft.iot.vmp.utils.TileUtils;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.CaseFormat;
 import lombok.extern.slf4j.Slf4j;
-import no.ecc.vectortile.VectorTileEncoder;
-import org.jetbrains.annotations.NotNull;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import java.beans.PropertyDescriptor;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -69,44 +50,6 @@ public class GbChannelServiceImpl implements IGbChannelService {
 
     @Autowired
     private GroupMapper groupMapper;
-
-    @Autowired
-    private DynamicTask dynamicTask;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Autowired
-    private VectorTileCatch vectorTileCatch;
-
-    private final GeometryFactory geometryFactory = new GeometryFactory();
-
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void onApplicationReady() {
-        // 启动时重新发布抽稀图层
-        List<CommonGBChannel> channelList = commonGBChannelMapper.queryAllWithPosition();
-        Map<Integer, List<CommonGBChannel>> zoomCameraMap = new ConcurrentHashMap<>();
-
-        channelList.stream().forEach(commonGBChannel ->  {
-            if (commonGBChannel.getMapLevel() == null) {
-                return;
-            }
-            List<CommonGBChannel> channelListForZoom = zoomCameraMap.computeIfAbsent(commonGBChannel.getMapLevel(), k -> new ArrayList<>());
-            channelListForZoom.add(commonGBChannel);
-        });
-
-        String id = "DEFAULT";
-        List<CommonGBChannel> beforeData = new ArrayList<>();
-        for (Integer zoom : zoomCameraMap.keySet()) {
-            beforeData.addAll(zoomCameraMap.get(zoom));
-            log.info("[抽稀-发布mvt矢量瓦片] ID：{}，当前层级： {}, ", id, zoom);
-            // 按照 z/x/y 数据组织数据， 矢量数据暂时保存在内存中
-            // 按照范围生成 x y范围，
-            saveTile(id, zoom, "WGS84", beforeData);
-            saveTile(id, zoom, "GCJ02", beforeData);
-        }
-    }
 
     @Override
     public CommonGBChannel queryByDeviceId(String gbDeviceId) {
@@ -902,269 +845,7 @@ public class GbChannelServiceImpl implements IGbChannelService {
     }
 
     @Override
-    public List<CommonGBChannel> queryListForMap(String query, Boolean online, Boolean hasRecordPlan, Integer channelType) {
-        if (query != null) {
-            query = query.replaceAll("/", "//")
-                    .replaceAll("%", "/%")
-                    .replaceAll("_", "/_");
-        }
-        return commonGBChannelMapper.queryList(query, online,  hasRecordPlan, channelType, null, null);
-    }
-
-    @Override
     public CommonGBChannel queryCommonChannelByDeviceChannel(DeviceChannel channel) {
         return commonGBChannelMapper.queryCommonChannelByDeviceChannel(channel.getDataType(), channel.getDataDeviceId(), channel.getDeviceId());
-    }
-
-    @Override
-    public void resetLevel() {
-        commonGBChannelMapper.resetLevel();
-    }
-
-    @Override
-    public byte[] getTile(int z, int x, int y, String geoCoordSys) {
-        double minLon = TileUtils.tile2lon(x, z);
-        double maxLon = TileUtils.tile2lon(x + 1, z);
-        double maxLat = TileUtils.tile2lat(y, z);
-        double minLat = TileUtils.tile2lat(y + 1, z);
-
-        if (geoCoordSys != null) {
-            if (geoCoordSys.equalsIgnoreCase("GCJ02")) {
-                Double[] minPosition = Coordtransform.GCJ02ToWGS84(minLon, minLat);
-                minLon = minPosition[0];
-                minLat = minPosition[1];
-
-                Double[] maxPosition = Coordtransform.GCJ02ToWGS84(maxLon, maxLat);
-                maxLon = maxPosition[0];
-                maxLat = maxPosition[1];
-            }
-        }
-        // 从数据库查询对应的数据
-        List<CommonGBChannel> channelList = commonGBChannelMapper.queryCameraChannelInBox(minLon, maxLon, minLat, maxLat);
-        VectorTileEncoder encoder = new VectorTileEncoder();
-        if (!channelList.isEmpty()) {
-            channelList.forEach(commonGBChannel -> {
-                double lon = commonGBChannel.getGbLongitude();
-                double lat = commonGBChannel.getGbLatitude();
-                // 转换为目标坐标系
-                if (geoCoordSys != null) {
-                    if (geoCoordSys.equalsIgnoreCase("GCJ02")) {
-                        Double[] minPosition = Coordtransform.WGS84ToGCJ02(lon, lat);
-                        lon = minPosition[0];
-                        lat = minPosition[1];
-                    }
-                }
-
-                // 将 lon/lat 转为瓦片内像素坐标（0..256）
-                double[] px = TileUtils.lonLatToTilePixel(lon, lat, z, x, y);
-                Point pointGeom = geometryFactory.createPoint(new Coordinate(px[0], px[1]));
-                Map<String, Object> beanMap = getStringObjectMap(commonGBChannel);
-                encoder.addFeature("points", beanMap, pointGeom);
-            });
-        }
-        return encoder.encode();
-    }
-
-    @NotNull
-    private static Map<String, Object> getStringObjectMap(CommonGBChannel commonGBChannel) {
-        BeanWrapper wrapper = new BeanWrapperImpl(commonGBChannel);
-        PropertyDescriptor[] pds = wrapper.getPropertyDescriptors();
-        Map<String, Object> beanMap = new HashMap<>();
-
-        for (PropertyDescriptor pd : pds) {
-            if (pd.getReadMethod() != null && !"class".equals(pd.getName())) {
-                Object value = wrapper.getPropertyValue(pd.getName());
-                beanMap.put(pd.getName(), value);
-            }
-        }
-        return beanMap;
-    }
-
-
-    @Override
-    public String drawThin(Map<Integer, Double> zoomParam, Extent extent, String geoCoordSys) {
-        long time = System.currentTimeMillis();
-
-        String id = UUID.randomUUID().toString();
-        List<CommonGBChannel> channelListInExtent;
-        if (extent == null) {
-            log.info("[抽稀] ID: {}, 未设置范围，从数据库读取摄像头的范围", id);
-            extent = commonGBChannelMapper.queryExtent();
-            channelListInExtent = commonGBChannelMapper.queryAllWithPosition();
-        }else {
-            if (geoCoordSys != null && geoCoordSys.equalsIgnoreCase("GCJ02")) {
-                Double[] maxPosition = Coordtransform.GCJ02ToWGS84(extent.getMaxLng(), extent.getMaxLat());
-                Double[] minPosition = Coordtransform.GCJ02ToWGS84(extent.getMinLng(), extent.getMinLat());
-
-                extent.setMaxLng(maxPosition[0]);
-                extent.setMaxLat(maxPosition[1]);
-
-                extent.setMinLng(minPosition[0]);
-                extent.setMinLat(minPosition[1]);
-            }
-            // 获取数据源
-            channelListInExtent = commonGBChannelMapper.queryListInExtent(extent.getMinLng(), extent.getMaxLng(), extent.getMinLat(), extent.getMaxLat());
-        }
-        Assert.isTrue(!channelListInExtent.isEmpty(), "通道数据为空");
-
-        log.info("[开始抽稀] ID： {}， 范围，[{}, {}, {}, {}]", id, extent.getMinLng(), extent.getMinLat(), extent.getMaxLng(), extent.getMaxLat());
-
-        Extent finalExtent = extent;
-        // 记录进度
-        saveProcess(id, 0, "开始抽稀");
-        dynamicTask.startDelay(id, () -> {
-            try {
-                // 存储每层的抽稀结果， key为层级（zoom），value为摄像头数组
-                Map<Integer, Collection<CommonGBChannel>> zoomCameraMap = new HashMap<>();
-
-                // 冗余一份已经处理过的摄像头的数据， 避免多次循环获取
-                Map<Integer, CommonGBChannel> useCameraMap = new HashMap<>();
-                AtomicReference<Double> process = new AtomicReference<>((double) 0);
-                for (Integer zoom : zoomParam.keySet()) {
-
-                    Map<String, CommonGBChannel> useCameraMapForZoom = new HashMap<>();
-                    Map<String, CommonGBChannel> cameraMapForZoom = new HashMap<>();
-
-                    if (Objects.equals(zoom, Collections.max(zoomParam.keySet()))) {
-                        // 最大层级不进行抽稀， 将未进行抽稀的数据直接存储到这个层级
-                        for (CommonGBChannel channel : channelListInExtent) {
-                            if (!useCameraMap.containsKey(channel.getGbId())) {
-                                channel.setMapLevel(zoom);
-                                // 这个的key跟后面的不一致是因为无需抽稀， 直接存储原始数据
-                                cameraMapForZoom.put(channel.getGbId() + "", channel);
-                                useCameraMap.put(channel.getGbId(), channel);
-                            }
-                        }
-                    }else {
-                        Double diff = zoomParam.get(zoom);
-                        // 对这个层级展开抽稀
-                        log.info("[抽稀] ID：{}，当前层级： {}, 坐标间隔： {}", id, zoom, diff);
-
-                        // 更新上级图层的数据到当前层级，确保当前层级展示时考虑到之前层级的数据
-                        for (CommonGBChannel channel : useCameraMap.values()) {
-                            int lngGrid = (int)(channel.getGbLongitude() / diff);
-                            int latGrid = (int)(channel.getGbLatitude() / diff);
-                            String gridKey = latGrid + ":" + lngGrid;
-                            useCameraMapForZoom.put(gridKey, channel);
-                        }
-
-                        // 对数据开始执行抽稀
-                        for (CommonGBChannel channel : channelListInExtent) {
-                            // 已经分配再其他层级的，本层级不再使用
-                            if (useCameraMap.containsKey(channel.getGbId())) {
-                                continue;
-                            }
-                            int lngGrid = (int)(channel.getGbLongitude() / diff);
-                            int latGrid = (int)(channel.getGbLatitude() / diff);
-                            // 数据网格Id
-                            String gridKey = latGrid + ":" + lngGrid;
-                            if (useCameraMapForZoom.containsKey(gridKey)) {
-                                continue;
-                            }
-                            if (cameraMapForZoom.containsKey(gridKey)) {
-                                CommonGBChannel oldChannel = cameraMapForZoom.get(gridKey);
-                                // 如果一个网格存在多个数据，则选择最接近中心点的， 目前只选择了经度方向作为参考
-                                if (channel.getGbLongitude() % diff < oldChannel.getGbLongitude() % diff) {
-                                    channel.setMapLevel(zoom);
-                                    cameraMapForZoom.put(gridKey, channel);
-                                    useCameraMap.put(channel.getGbId(), channel);
-                                    useCameraMap.remove(oldChannel.getGbId());
-                                    oldChannel.setMapLevel(null);
-                                }
-                            }else {
-                                channel.setMapLevel(zoom);
-                                cameraMapForZoom.put(gridKey, channel);
-                                useCameraMap.put(channel.getGbId(), channel);
-                            }
-                        }
-                    }
-                    // 存储
-                    zoomCameraMap.put(zoom, cameraMapForZoom.values());
-                    process.updateAndGet(v -> (v + 0.5 / zoomParam.size()));
-                    saveProcess(id, process.get(), "抽稀图层： " + zoom);
-                }
-
-                // 抽稀完成, 对数据发布mvt矢量瓦片
-                List<CommonGBChannel> beforeData = new ArrayList<>();
-                for (Integer zoom : zoomCameraMap.keySet()) {
-                    beforeData.addAll(zoomCameraMap.get(zoom));
-                    log.info("[抽稀-发布mvt矢量瓦片] ID：{}，当前层级： {}", id, zoom);
-                    // 按照 z/x/y 数据组织数据， 矢量数据暂时保存在内存中
-                    // 按照范围生成 x y范围，
-                    saveTile(id, zoom, "WGS84", beforeData);
-                    saveTile(id, zoom, "GCJ02", beforeData);
-                    process.updateAndGet(v -> (v + 0.5 / zoomParam.size()));
-                    saveProcess(id, process.get(), "发布矢量瓦片： " + zoom);
-                }
-                // 记录原始数据，未保存做准备
-                vectorTileCatch.addSource(id, new ArrayList<>(useCameraMap.values()));
-
-                log.info("[抽稀完成] ID：{}, 耗时： {}ms", id, (System.currentTimeMillis() - time));
-                saveProcess(id, 1, "抽稀完成");
-            } catch (Exception e) {
-                log.info("[抽稀] 失败 ID：{}", id, e);
-            }
-
-        }, 1);
-
-        return id;
-    }
-
-    private void saveTile(String id, int z, String geoCoordSys, Collection<CommonGBChannel> commonGBChannelList ) {
-        Map<String, VectorTileEncoder> encoderMap = new HashMap<>();
-        commonGBChannelList.forEach(commonGBChannel -> {
-            double lon = commonGBChannel.getGbLongitude();
-            double lat = commonGBChannel.getGbLatitude();
-            if (geoCoordSys != null && geoCoordSys.equalsIgnoreCase("GCJ02")) {
-                Double[] minPosition = Coordtransform.WGS84ToGCJ02(lon, lat);
-                lon = minPosition[0];
-                lat = minPosition[1];
-            }
-            double[] doubles = TileUtils.lonLatToTileXY(lon, lat, z);
-            int x = (int) doubles[0];
-            int y = (int) doubles[1];
-            String key = z + "_" + x + "_" + y + "_" + geoCoordSys;
-            VectorTileEncoder encoder =encoderMap.get(key);
-            if (encoder == null) {
-                encoder = new VectorTileEncoder();
-                encoderMap.put(key, encoder);
-            }
-            // 将 lon/lat 转为瓦片内像素坐标（0..256）
-            double[] px = TileUtils.lonLatToTilePixel(lon, lat, z, x, y);
-            Point pointGeom = geometryFactory.createPoint(new Coordinate(px[0], px[1]));
-            Map<String, Object> beanMap = getStringObjectMap(commonGBChannel);
-            encoder.addFeature("points", beanMap, pointGeom);
-        });
-        encoderMap.forEach((key, encoder) -> {
-            vectorTileCatch.addVectorTile(id, key, encoder.encode());
-        });
-    }
-
-    private void saveProcess(String id, double process, String msg) {
-        String key = VideoManagerConstants.DRAW_THIN_PROCESS_PREFIX + id;
-        Duration duration = Duration.ofMinutes(30);
-        redisTemplate.opsForValue().set(key, new DrawThinProcess(process, msg), duration);
-    }
-
-    @Override
-    public DrawThinProcess thinProgress(String id) {
-        String key = VideoManagerConstants.DRAW_THIN_PROCESS_PREFIX + id;
-        return (DrawThinProcess) redisTemplate.opsForValue().get(key);
-    }
-
-    @Override
-    @Transactional
-    public void saveThin(String id) {
-        commonGBChannelMapper.resetLevel();
-        List<CommonGBChannel> channelList = vectorTileCatch.getChannelList(id);
-        if (channelList != null && !channelList.isEmpty()) {
-            int limitCount = 1000;
-            for (int i = 0; i < channelList.size(); i += limitCount) {
-                int end = Math.min(i + limitCount, channelList.size());
-                List<CommonGBChannel> batchList = channelList.subList(i, end);
-                commonGBChannelMapper.saveLevel(batchList);
-            }
-        }
-        vectorTileCatch.save(id);
     }
 }

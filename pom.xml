@@ -340,20 +340,6 @@
             <version>1.78.1</version>
         </dependency>
 
-        <!-- mvt矢量瓦片库 -->
-        <dependency>
-            <groupId>no.ecc.vectortile</groupId>
-            <artifactId>java-vector-tile</artifactId>
-            <version>1.4.1</version>
-        </dependency>
-
-        <!-- JTS for geometry creation -->
-        <dependency>
-            <groupId>org.locationtech.jts</groupId>
-            <artifactId>jts-core</artifactId>
-            <version>1.18.2</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>

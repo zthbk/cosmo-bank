@@ -548,16 +548,6 @@ public class ChannelProvider {
                 " where data_type=#{dataType} and data_device_id=#{dataDeviceId} AND device_id=#{deviceId}";
     }
 
-    public String queryCameraChannelInBox(Map<String, Object> params ){
-        StringBuilder sqlBuild = new StringBuilder();
-        sqlBuild.append(BASE_SQL_TABLE_NAME);
-        sqlBuild.append(" where wdc.channel_type = 0 AND coalesce(wdc.gb_longitude, wdc.longitude) > #{minLon} " +
-                "AND coalesce(wdc.gb_longitude, wdc.longitude) <= #{maxLon} " +
-                "AND coalesce(wdc.gb_latitude,  wdc.latitude) > #{minLat} " +
-                "AND coalesce(wdc.gb_latitude,  wdc.latitude) <= #{maxLat}");
-        return sqlBuild.toString();
-    }
-
     public String queryOldChanelListByChannels(Map<String, Object> params ){
         StringBuilder sqlBuild = new StringBuilder();
         sqlBuild.append(BASE_SQL);
@@ -863,36 +853,6 @@ public class ChannelProvider {
 
     public String queryCameraChannelById(Map<String, Object> params ){
         return BASE_SQL_FOR_CAMERA_DEVICE + " where wdc.id = #{gbId}";
-    }
-
-    public String queryAllWithPosition(Map<String, Object> params ){
-        return BASE_SQL + " where channel_type = 0 " +
-                " AND coalesce(gb_longitude, longitude) > 0" +
-                " AND coalesce(gb_latitude,  latitude) > 0 " +
-                " ORDER BY map_level";
-    }
-
-    public String queryListInExtent(Map<String, Object> params ){
-        StringBuilder sqlBuild = new StringBuilder();
-        sqlBuild.append(BASE_SQL);
-        sqlBuild.append(" where channel_type = 0  " +
-                "AND coalesce(gb_longitude, longitude) > #{minLng} " +
-                "AND coalesce(gb_longitude, longitude) <= #{maxLng} " +
-                "AND coalesce(gb_latitude,  latitude) > #{minLat} " +
-                "AND coalesce(gb_latitude,  latitude) <= #{maxLat}");
-        return sqlBuild.toString();
-    }
-
-    public String queryListOutExtent(Map<String, Object> params ){
-        StringBuilder sqlBuild = new StringBuilder();
-        sqlBuild.append(BASE_SQL);
-        sqlBuild.append(" where channel_type = 0  AND ( " +
-                "coalesce(gb_longitude, longitude) <= #{minLng} " +
-                "or coalesce(gb_longitude, longitude) > #{maxLng} " +
-                "or coalesce(gb_latitude,  latitude) <= #{minLat} " +
-                "or coalesce(gb_latitude,  latitude) > #{maxLat}" +
-                ")");
-        return sqlBuild.toString();
     }
 
 }

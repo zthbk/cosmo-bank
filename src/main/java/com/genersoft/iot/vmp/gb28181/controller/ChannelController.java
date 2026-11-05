@@ -8,7 +8,6 @@ import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.controller.bean.*;
 import com.genersoft.iot.vmp.gb28181.service.IGbChannelPlayService;
 import com.genersoft.iot.vmp.gb28181.service.IGbChannelService;
-import com.genersoft.iot.vmp.gb28181.utils.VectorTileCatch;
 import com.genersoft.iot.vmp.service.bean.ErrorCallback;
 import com.genersoft.iot.vmp.service.bean.InviteErrorCode;
 import com.genersoft.iot.vmp.utils.DateUtil;
@@ -26,10 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -59,9 +54,6 @@ public class ChannelController {
 
     @Autowired
     private UserSetting userSetting;
-
-    @Autowired
-    private VectorTileCatch vectorTileCatch;
 
 
     @Operation(summary = "查询通道信息", security = @SecurityRequirement(name = JwtUtils.HEADER))
@@ -527,104 +519,5 @@ public class ChannelController {
         Assert.notNull(channel, "通道不存在");
         channelPlayService.playbackSpeed(channel, stream, speed);
     }
-
-    @Operation(summary = "为地图获取通道列表", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @Parameter(name = "query", description = "查询内容")
-    @Parameter(name = "online", description = "是否在线")
-    @Parameter(name = "hasRecordPlan", description = "是否已设置录制计划")
-    @Parameter(name = "channelType", description = "通道类型， 0：国标设备，1：推流设备，2：拉流代理")
-    @Parameter(name = "geoCoordSys", description = "地理坐标系， WGS84/GCJ02")
-    @GetMapping("/map/list")
-    public List<CommonGBChannel> queryListForMap(
-            @RequestParam(required = false) String query,
-            @RequestParam(required = false) Boolean online,
-            @RequestParam(required = false) Boolean hasRecordPlan,
-            @RequestParam(required = false) Integer channelType){
-        if (ObjectUtils.isEmpty(query)){
-            query = null;
-        }
-        return channelService.queryListForMap(query, online, hasRecordPlan, channelType);
-    }
-
-    @Operation(summary = "为地图去除抽稀结果", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @PostMapping("/map/reset-level")
-    public void resetLevel(){
-        channelService.resetLevel();
-    }
-
-    @Operation(summary = "执行抽稀", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @PostMapping("/map/thin/draw")
-    public String drawThin(@RequestBody DrawThinParam param){
-        if(param == null || param.getZoomParam() == null || param.getZoomParam().isEmpty()) {
-            throw new ControllerException(ErrorCode.ERROR400);
-        }
-        return channelService.drawThin(param.getZoomParam(), param.getExtent(), param.getGeoCoordSys());
-    }
-
-    @Operation(summary = "清除未保存的抽稀结果", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @Parameter(name = "id", description = "抽稀ID", required = true)
-    @GetMapping("/map/thin/clear")
-    public void clearThin(String id){
-        vectorTileCatch.remove(id);
-    }
-
-    @Operation(summary = "保存的抽稀结果", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @Parameter(name = "id", description = "抽稀ID", required = true)
-    @GetMapping("/map/thin/save")
-    public void saveThin(String id){
-        channelService.saveThin(id);
-    }
-
-    @Operation(summary = "获取抽稀执行的进度", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @Parameter(name = "id", description = "抽稀ID", required = true)
-    @GetMapping("/map/thin/progress")
-    public DrawThinProcess thinProgress(String id){
-        return channelService.thinProgress(id);
-    }
-
-    @Operation(summary = "为地图提供标准mvt图层", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @GetMapping(value = "/map/tile/{z}/{x}/{y}", produces = "application/x-protobuf")
-    @Parameter(name = "geoCoordSys", description = "地理坐标系， WGS84/GCJ02")
-    public ResponseEntity<byte[]> getTile(@PathVariable int z, @PathVariable int x, @PathVariable int y, String geoCoordSys){
-
-        try {
-            byte[] mvt = channelService.getTile(z, x, y, geoCoordSys);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.parseMediaType("application/x-protobuf"));
-            if (mvt == null) {
-                headers.setContentLength(0);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-            }
-            headers.setContentLength(mvt.length);
-            return new ResponseEntity<>(mvt, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("构建矢量瓦片失败： z: {}, x: {}, y:{}", z, x, y, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    @Operation(summary = "为地图提供经过抽稀的标准mvt图层", security = @SecurityRequirement(name = JwtUtils.HEADER))
-    @GetMapping(value = "/map/thin/tile/{z}/{x}/{y}", produces = "application/x-protobuf")
-    @Parameter(name = "geoCoordSys", description = "地理坐标系， WGS84/GCJ02")
-    @Parameter(name = "thinId", description = "抽稀结果ID")
-    public ResponseEntity<byte[]> getThinTile(@PathVariable int z, @PathVariable int x, @PathVariable int y,
-                                              String geoCoordSys, @RequestParam(required = false) String thinId){
-
-        if (ObjectUtils.isEmpty(thinId)) {
-            thinId = "DEFAULT";
-        }
-        String catchKey = z + "_" + x + "_" + y + "_" + geoCoordSys.toUpperCase();
-        byte[] mvt = vectorTileCatch.getVectorTile(thinId, catchKey);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/x-protobuf"));
-        if (mvt == null) {
-            headers.setContentLength(0);
-            return ResponseEntity.status(HttpStatus.OK).body(null);
-        }
-
-        headers.setContentLength(mvt.length);
-        return new ResponseEntity<>(mvt, headers, HttpStatus.OK);
-    }
-
 
 }

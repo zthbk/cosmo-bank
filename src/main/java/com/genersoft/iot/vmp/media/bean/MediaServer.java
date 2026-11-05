@@ -1,7 +1,6 @@
 package com.genersoft.iot.vmp.media.bean;
 
 
-import com.genersoft.iot.vmp.media.abl.bean.AblServerConfig;
 import com.genersoft.iot.vmp.media.zlm.dto.ZLMServerConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -106,7 +105,7 @@ public class MediaServer {
 
     @Schema(description = "录像存储路径")
     private String recordPath;
-    @Schema(description = "类型： zlm/abl")
+    @Schema(description = "类型： zlm")
     private String type;
 
     @Schema(description = "转码的前缀")
@@ -139,25 +138,5 @@ public class MediaServer {
         recordAssistPort = 0; // 默认关闭
         transcodeSuffix = zlmServerConfig.getTranscodeSuffix();
 
-    }
-
-    public MediaServer(AblServerConfig config, String sipIp) {
-        id = config.getMediaServerId();
-        ip = config.getServerIp();
-        hookIp = sipIp;
-        sdpIp = config.getServerIp();
-        streamIp = config.getServerIp();
-        httpPort = config.getHttpServerPort();
-        flvPort = config.getHttpFlvPort();
-        mp4Port = config.getHttpMp4Port();
-        wsFlvPort = config.getWsFlvPort();
-        rtmpPort = config.getRtmpPort();
-        rtpProxyPort = config.getJtt1078RecvPort();
-        rtspPort = config.getRtspPort();
-        autoConfig = true; // 默认值true;
-        secret = config.getSecret();
-        rtpEnable = false; // 默认使用单端口;直到用户自己设置开启多端口
-        rtpPortRange = "30000,30500"; // 默认使用30000,30500作为级联时发送流的端口号
-        recordAssistPort = 0; // 默认关闭
     }
 }

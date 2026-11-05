@@ -1,9 +1,7 @@
 package com.genersoft.iot.vmp.media.bean;
 
-import com.genersoft.iot.vmp.media.abl.bean.hook.OnRecordMp4ABLHookParam;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.OnRecordMp4HookParam;
 import com.genersoft.iot.vmp.service.bean.CloudRecordItem;
-import com.genersoft.iot.vmp.utils.DateUtil;
 import lombok.Data;
 
 @Data
@@ -36,17 +34,6 @@ public class RecordInfo {
         recordInfo.setFileSize(hookParam.getFile_size());
         recordInfo.setStartTime(hookParam.getStart_time() * 1000);
         recordInfo.setTimeLen(hookParam.getTime_len() * 1000);
-        return recordInfo;
-    }
-
-    public static RecordInfo getInstance(OnRecordMp4ABLHookParam hookParam) {
-        RecordInfo recordInfo = new RecordInfo();
-        recordInfo.setApp(hookParam.getApp());
-        recordInfo.setStream(hookParam.getStream());
-        recordInfo.setFileName(hookParam.getFileName());
-        recordInfo.setStartTime(DateUtil.urlToTimestampMs(hookParam.getStartTime()));
-        recordInfo.setTimeLen(DateUtil.urlToTimestampMs(hookParam.getEndTime()) - recordInfo.getStartTime());
-        recordInfo.setFileSize(hookParam.getFileSize());
         return recordInfo;
     }
 

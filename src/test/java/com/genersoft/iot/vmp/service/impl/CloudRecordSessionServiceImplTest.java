@@ -266,7 +266,7 @@ class CloudRecordSessionServiceImplTest {
     /** 不支持的媒体节点不能误走ZLM专有文件接口。 */
     @Test
     void unsupportedNodeDoesNotLoad() {
-        node.setType("abl");
+        node.setType("unknown");
         assertCode(486, () -> service.create(USER, RECORD, 0, null));
         verifyNoInteractions(zlm);
     }

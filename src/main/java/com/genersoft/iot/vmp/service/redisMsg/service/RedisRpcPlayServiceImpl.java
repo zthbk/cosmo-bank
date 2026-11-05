@@ -193,25 +193,6 @@ public class RedisRpcPlayServiceImpl implements IRedisRpcPlayService {
     }
 
     @Override
-    public void playPush(String serverId, Integer id, ErrorCallback<StreamInfo> callback) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", id);
-        RedisRpcRequest request = buildRequest("streamPush/play", jsonObject);
-        request.setToId(serverId);
-        RedisRpcResponse response = redisRpcConfig.request(request, userSetting.getPlayTimeout(), TimeUnit.SECONDS);
-        if (response == null) {
-            callback.run(ErrorCode.ERROR100.getCode(), ErrorCode.ERROR100.getMsg(), null);
-        }else {
-            if (response.getStatusCode() == ErrorCode.SUCCESS.getCode()) {
-                StreamInfo streamInfo = JSON.parseObject(response.getBody().toString(), StreamInfo.class);
-                callback.run(InviteErrorCode.SUCCESS.getCode(), InviteErrorCode.SUCCESS.getMsg(), streamInfo);
-            }else {
-                callback.run(response.getStatusCode(), response.getBody().toString(), null);
-            }
-        }
-    }
-
-    @Override
     public DownloadFileInfo getRecordPlayUrl(String serverId, Integer recordId) {
         RedisRpcRequest request = buildRequest("cloudRecord/play", recordId);
         RedisRpcResponse response = redisRpcConfig.request(request, userSetting.getPlayTimeout(), TimeUnit.SECONDS);

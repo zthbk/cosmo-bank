@@ -190,7 +190,7 @@ public class InviteRequestProcessor extends SIPRequestProcessorParent implements
                         sendRtpItem.setStatus(1);
                         sendRtpItem.setCallId(finalInviteInfo.getCallId());
 
-                        sendRtpItem.setPlayTypeByChannelDataType(channel.getDataType(), finalInviteInfo.getSessionName());
+                        sendRtpItem.setPlayType("Play".equalsIgnoreCase(finalInviteInfo.getSessionName()) ? InviteStreamType.PLAY : InviteStreamType.PLAYBACK);
                         sendRtpItem.setServerId(streamInfo.getServerId());
                         sendRtpServerService.update(sendRtpItem);
                         String sdpIp = streamInfo.getMediaServer().getSdpIp();

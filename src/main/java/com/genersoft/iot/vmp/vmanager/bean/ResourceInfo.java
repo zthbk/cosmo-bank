@@ -4,7 +4,6 @@ public class ResourceInfo {
 
     private ResourceBaseInfo device;
     private ResourceBaseInfo channel;
-    private ResourceBaseInfo push;
 
     public ResourceBaseInfo getDevice() {
         return device;
@@ -20,13 +19,5 @@ public class ResourceInfo {
 
     public void setChannel(ResourceBaseInfo channel) {
         this.channel = channel;
-    }
-
-    public ResourceBaseInfo getPush() {
-        return push;
-    }
-
-    public void setPush(ResourceBaseInfo push) {
-        this.push = push;
     }
 }

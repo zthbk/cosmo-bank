@@ -4,10 +4,6 @@ import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.dao.provider.ChannelProvider;
 import com.genersoft.iot.vmp.gb28181.dao.provider.MysqlCommonChannelUpsertProvider;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
-import com.genersoft.iot.vmp.streamPush.bean.StreamPush;
-import com.genersoft.iot.vmp.web.custom.bean.CameraChannel;
-import com.genersoft.iot.vmp.web.custom.bean.CameraGroup;
-import com.genersoft.iot.vmp.web.custom.bean.Point;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -457,9 +453,6 @@ public interface CommonGBChannelMapper {
             " </script>"})
     int updateCivilCodeByChannelList(@Param("civilCode") String civilCode, List<CommonGBChannel> channelList);
 
-    @SelectProvider(type = ChannelProvider.class, method = "queryListByStreamPushList")
-    List<CommonGBChannel> queryListByStreamPushList(@Param("dataType") Integer dataType, List<StreamPush> streamPushList);
-
     @Update(value = {" <script>" +
             " <foreach collection='gpsMsgInfoList' item='item' separator=';' >" +
             " UPDATE wvp_device_channel " +
@@ -617,47 +610,6 @@ public interface CommonGBChannelMapper {
             "</script>")
     void updateGps(List<CommonGBChannel> commonGBChannels);
 
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListForSy")
-    List<CameraChannel> queryListForSy(@Param("groupDeviceId") String groupDeviceId, @Param("online") Boolean online);
-
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryGbChannelByChannelDeviceIdAndGbDeviceId")
-    List<CameraChannel> queryGbChannelByChannelDeviceIdAndGbDeviceId(@Param("channelDeviceId") String channelDeviceId, @Param("gbDeviceId") String gbDeviceId);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListByDeviceIds")
-    List<CameraChannel> queryListByDeviceIds(List<String> deviceIds);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListWithChildForSy")
-    List<CameraChannel> queryListWithChildForSy(@Param("query") String query, @Param("sortName") String sortName, @Param("order") Boolean order, @Param("groupList") List<CameraGroup> groupList, @Param("online") Boolean online);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListByAddressAndDirectionType")
-    List<CameraChannel> queryListByAddressAndDirectionType(@Param("address") String address, @Param("directionType") Integer directionType);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInBox")
-    List<CameraChannel> queryListInBox(@Param("minLongitude") Double minLongitude, @Param("maxLongitude") Double maxLongitude,
-                                       @Param("minLatitude") Double minLatitude, @Param("maxLatitude") Double maxLatitude,
-                                       @Param("level") Integer level, @Param("groupList") List<CameraGroup> groupList);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInCircleForMysql", databaseId = "mysql")
-    List<CameraChannel> queryListInCircle(@Param("centerLongitude") Double centerLongitude, @Param("centerLatitude") Double centerLatitude,
-                                          @Param("radius") Double radius, @Param("level") Integer level, @Param("groupList") List<CameraGroup> groupList);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListInPolygonForMysql", databaseId = "mysql")
-    List<CameraChannel> queryListInPolygon(@Param("pointList") List<Point> pointList, @Param("level") Integer level, @Param("groupList") List<CameraGroup> groupList);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryListForSyMobile")
-    List<CameraChannel> queryListForSyMobile(@Param("business") String business);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryCameraChannelById")
-    CameraChannel queryCameraChannelById(@Param("gbId") Integer id);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryCameraChannelByIds")
-    List<CameraChannel> queryCameraChannelByIds(List<CommonGBChannel> channelList);
-
     @SelectProvider(type = ChannelProvider.class, method = "queryOldChanelListByChannels")
     List<CommonGBChannel> queryOldChanelListByChannels(List<CommonGBChannel> channelList);
-
-    @SelectProvider(type = ChannelProvider.class, method = "queryMeetingChannelList")
-    List<CameraChannel> queryMeetingChannelList(@Param("business") String business);
 }

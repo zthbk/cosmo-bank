@@ -2,7 +2,6 @@ package com.genersoft.iot.vmp.gb28181.service;
 
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
-import com.genersoft.iot.vmp.streamPush.bean.StreamPush;
 import com.github.pagehelper.PageInfo;
 
 import java.util.Collection;
@@ -76,13 +75,9 @@ public interface IGbChannelService {
 
     void deleteChannelToGroupByGbDevice(List<Integer> deviceIds);
 
-    void batchUpdateForStreamPushRedisMsg(List<CommonGBChannel> commonGBChannels, boolean permission);
-
     CommonGBChannel queryOneWithPlatform(Integer platformId, String channelDeviceId);
 
     void updateCivilCode(String oldCivilCode, String newCivilCode);
-
-    List<CommonGBChannel> queryListByStreamPushList(List<StreamPush> streamPushList);
 
     PageInfo<CommonGBChannel> queryList(int page, int count, String query, Boolean online, Boolean hasRecordPlan, Integer channelType, String civilCode, String parentDeviceId);
 

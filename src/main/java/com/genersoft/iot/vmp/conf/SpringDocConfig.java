@@ -68,14 +68,6 @@ public class SpringDocConfig {
     }
 
     @Bean
-    public GroupedOpenApi publicApi4() {
-        return GroupedOpenApi.builder()
-                .group("4. 推流管理")
-                .packagesToScan("com.genersoft.iot.vmp.streamPush")
-                .build();
-    }
-
-    @Bean
     public GroupedOpenApi publicApi5() {
         return GroupedOpenApi.builder()
                 .group("4. 服务管理")
@@ -88,14 +80,6 @@ public class SpringDocConfig {
         return GroupedOpenApi.builder()
                 .group("5. 用户管理")
                 .packagesToScan("com.genersoft.iot.vmp.user")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi publicApi99() {
-        return GroupedOpenApi.builder()
-                .group("99. 第三方接口")
-                .packagesToScan("com.genersoft.iot.vmp.web.custom")
                 .build();
     }
 }

@@ -7,7 +7,6 @@ import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.gb28181.bean.Group;
 import com.genersoft.iot.vmp.gb28181.bean.RedisGroupMessage;
 import com.genersoft.iot.vmp.gb28181.service.IGroupService;
-import com.genersoft.iot.vmp.streamPush.service.IStreamPushService;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +35,6 @@ public class RedisGroupChangeListener implements MessageListener {
 
     @Resource
     private IGroupService groupService;
-
-    @Resource
-    private IStreamPushService streamPushService;
 
     @Autowired
     private UserSetting userSetting;

@@ -17,17 +17,7 @@ public interface IRedisRpcService {
 
     WVPResult stopSendRtp(String callId);
 
-    long waitePushStreamOnline(SendRtpInfo sendRtpItem, CommonCallback<Integer> callback);
-
-    void stopWaitePushStreamOnline(SendRtpInfo sendRtpItem);
-
-    void rtpSendStopped(String callId);
-
     void removeCallback(long key);
-
-    long onStreamOnlineEvent(String app, String stream, CommonCallback<StreamInfo> callback);
-
-    void unPushStreamOnlineEvent(String app, String stream);
 
     void subscribeCatalog(int id, int cycle);
 

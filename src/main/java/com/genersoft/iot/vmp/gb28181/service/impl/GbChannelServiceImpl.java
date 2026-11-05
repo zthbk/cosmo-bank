@@ -13,7 +13,6 @@ import com.genersoft.iot.vmp.gb28181.event.channel.ChannelEvent;
 import com.genersoft.iot.vmp.gb28181.service.IGbChannelService;
 import com.genersoft.iot.vmp.gb28181.service.IPlatformChannelService;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
-import com.genersoft.iot.vmp.streamPush.bean.StreamPush;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.github.pagehelper.PageHelper;
@@ -283,33 +282,6 @@ public class GbChannelServiceImpl implements IGbChannelService {
             log.warn("[多个通道新增] 发送失败，数量：{}", commonGBChannels.size(), e);
         }
         log.warn("[新增多个通道] 通道数量为{}，成功保存：{}", commonGBChannels.size(), result);
-    }
-
-    @Override
-    public void batchUpdateForStreamPushRedisMsg(List<CommonGBChannel> commonGBChannels, boolean permission) {
-        if (commonGBChannels.isEmpty()) {
-            log.warn("[更新多个通道] 通道数量为0，更新失败");
-            return;
-        }
-        List<CommonGBChannel> oldCommonGBChannelList = commonGBChannelMapper.queryOldChanelListByChannels(commonGBChannels);
-        if (permission) {
-            // 批量保存
-            int limitCount = 1000;
-            int result = 0;
-            for (int i = 0; i < commonGBChannels.size(); i += limitCount) {
-                int end = Math.min(i + limitCount, commonGBChannels.size());
-                List<CommonGBChannel> batchList = commonGBChannels.subList(i, end);
-                result += commonGBChannelMapper.batchUpdate(batchList);
-            }
-            log.info("[更新多个通道] 通道数量为{}，成功保存：{}", commonGBChannels.size(), result);
-        }
-        // 发送通过更新通知
-        try {
-            // 发送通知
-            eventPublisher.channelEventPublishForUpdate(commonGBChannels, oldCommonGBChannelList);
-        } catch (Exception e) {
-            log.warn("[更新多个通道] 发送失败，{}个", commonGBChannels.size(), e);
-        }
     }
 
     @Override
@@ -736,11 +708,6 @@ public class GbChannelServiceImpl implements IGbChannelService {
                 log.warn("[多个通道业务分组] 发送失败，数量：{}", channelList.size(), e);
             }
         }
-    }
-
-    @Override
-    public List<CommonGBChannel> queryListByStreamPushList(List<StreamPush> streamPushList) {
-        return commonGBChannelMapper.queryListByStreamPushList(ChannelDataType.STREAM_PUSH, streamPushList);
     }
 
     @Override

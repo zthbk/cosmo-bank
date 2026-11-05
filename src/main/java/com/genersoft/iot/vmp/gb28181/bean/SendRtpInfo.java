@@ -1,9 +1,7 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
-import com.genersoft.iot.vmp.common.enums.ChannelDataType;
 import com.genersoft.iot.vmp.common.enums.MediaStreamUtil;
 import com.genersoft.iot.vmp.media.bean.MediaServer;
-import com.genersoft.iot.vmp.service.bean.RequestPushStreamMsg;
 import lombok.Data;
 
 @Data
@@ -144,23 +142,6 @@ public class SendRtpInfo {
      */
     private String sessionName;
 
-    public static SendRtpInfo getInstance(RequestPushStreamMsg requestPushStreamMsg) {
-        SendRtpInfo sendRtpItem = new SendRtpInfo();
-        sendRtpItem.setMediaServerId(requestPushStreamMsg.getMediaServerId());
-        sendRtpItem.setApp(requestPushStreamMsg.getApp());
-        sendRtpItem.setStream(requestPushStreamMsg.getStream());
-        sendRtpItem.setIp(requestPushStreamMsg.getIp());
-        sendRtpItem.setPort(requestPushStreamMsg.getPort());
-        sendRtpItem.setSsrc(requestPushStreamMsg.getSsrc());
-        sendRtpItem.setTcp(requestPushStreamMsg.isTcp());
-        sendRtpItem.setLocalPort(requestPushStreamMsg.getSrcPort());
-        sendRtpItem.setPt(requestPushStreamMsg.getPt());
-        sendRtpItem.setUsePs(requestPushStreamMsg.isPs());
-        sendRtpItem.setOnlyAudio(requestPushStreamMsg.isOnlyAudio());
-        return sendRtpItem;
-
-    }
-
     public static SendRtpInfo getInstance(String app, String stream, String ssrc, String dstIp, Integer dstPort, boolean tcp, int sendLocalPort, Integer pt) {
         SendRtpInfo sendRtpItem = new SendRtpInfo();
         sendRtpItem.setApp(app);
@@ -236,15 +217,4 @@ public class SendRtpInfo {
                 ", sessionName='" + sessionName + '\'' +
                 '}';
     }
-
-
-    public void setPlayTypeByChannelDataType(Integer dataType, String sessionName) {
-        if (dataType == ChannelDataType.STREAM_PUSH) {
-            this.setPlayType(InviteStreamType.PUSH);
-        }else {
-            this.setPlayType("Play".equalsIgnoreCase(sessionName) ? InviteStreamType.PLAY : InviteStreamType.PLAYBACK);
-        }
-    }
-
-
 }

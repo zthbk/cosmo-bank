@@ -7,7 +7,6 @@ package com.genersoft.iot.vmp.common.enums;
 public class ChannelDataType {
 
     public final static int GB28181 = 1;
-    public final static int STREAM_PUSH = 2;
 
     public final static String PLAY_SERVICE = "sourceChannelPlayService";
     public final static String PLAYBACK_SERVICE = "sourceChannelPlaybackService";
@@ -23,7 +22,6 @@ public class ChannelDataType {
         }
         return switch (dataType) {
             case ChannelDataType.GB28181 -> "国标28181";
-            case ChannelDataType.STREAM_PUSH -> "推流设备";
             default -> "未知";
         };
     }

@@ -110,11 +110,6 @@ sip:
     # 命令发送等待回复的超时时间, 单位:毫秒
     timeout: 1000
 
-sy:
-  enable: false
-  # 云台控制开始到结束的时间间隔(毫秒)
-  ptz-control-time-interval: 300
-
 #zlm 默认服务器配置
 media:
     # [必须修改] zlm服务器唯一id，用于触发hook时区别是哪台服务器,general.mediaServerId

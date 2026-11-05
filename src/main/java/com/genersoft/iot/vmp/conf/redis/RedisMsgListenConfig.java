@@ -29,25 +29,13 @@ public class RedisMsgListenConfig {
 	private RedisAlarmMsgListener redisAlarmMsgListener;
 
 	@Autowired
-	private RedisPushStreamStatusMsgListener redisPushStreamStatusMsgListener;
-
-	@Autowired
-	private RedisPushStreamListMsgListener pushStreamListMsgListener;
-
-	@Autowired
 	private RedisGroupMsgListener groupMsgListener;
 
 	@Autowired
 	private RedisGroupChangeListener groupChangeListener;
 
 	@Autowired
-	private RedisCloseStreamMsgListener redisCloseStreamMsgListener;
-
-	@Autowired
 	private RedisRpcConfig redisRpcConfig;
-
-	@Autowired
-	private RedisPushStreamResponseListener redisPushStreamCloseResponseListener;
 
 
 	/**
@@ -64,11 +52,7 @@ public class RedisMsgListenConfig {
         container.setConnectionFactory(connectionFactory);
 		container.addMessageListener(redisGPSMsgListener, new PatternTopic(VideoManagerConstants.VM_MSG_GPS));
 		container.addMessageListener(redisAlarmMsgListener, new PatternTopic(VideoManagerConstants.VM_MSG_SUBSCRIBE_ALARM_RECEIVE));
-		container.addMessageListener(redisPushStreamStatusMsgListener, new PatternTopic(VideoManagerConstants.VM_MSG_PUSH_STREAM_STATUS_CHANGE));
-		container.addMessageListener(pushStreamListMsgListener, new PatternTopic(VideoManagerConstants.VM_MSG_PUSH_STREAM_LIST_CHANGE));
-		container.addMessageListener(redisCloseStreamMsgListener, new PatternTopic(VideoManagerConstants.VM_MSG_STREAM_PUSH_CLOSE));
 		container.addMessageListener(redisRpcConfig, new PatternTopic(RedisRpcConfig.REDIS_REQUEST_CHANNEL_KEY));
-		container.addMessageListener(redisPushStreamCloseResponseListener, new PatternTopic(VideoManagerConstants.VM_MSG_STREAM_PUSH_RESPONSE));
 		container.addMessageListener(groupMsgListener, new PatternTopic(VideoManagerConstants.VM_MSG_GROUP_LIST_RESPONSE));
 		container.addMessageListener(groupChangeListener, new PatternTopic(VideoManagerConstants.VM_MSG_GROUP_LIST_CHANGE));
         return container;

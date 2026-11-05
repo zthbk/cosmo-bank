@@ -17,7 +17,6 @@ import com.genersoft.iot.vmp.media.event.mediaServer.MediaServerChangeEvent;
 import com.genersoft.iot.vmp.media.service.IMediaServerService;
 import com.genersoft.iot.vmp.service.bean.MediaServerLoad;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
-import com.genersoft.iot.vmp.streamPush.service.IStreamPushService;
 import com.genersoft.iot.vmp.vmanager.bean.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -69,9 +68,6 @@ public class ServerController {
 
     @Autowired
     private IDeviceChannelService channelService;
-
-    @Autowired
-    private IStreamPushService pushService;
 
 
     @Value("${server.port}")
@@ -289,8 +285,6 @@ public class ServerController {
         result.setDevice(deviceInfo);
         ResourceBaseInfo channelInfo = channelService.getOverview();
         result.setChannel(channelInfo);
-        ResourceBaseInfo pushInfo = pushService.getOverview();
-        result.setPush(pushInfo);
 
         return result;
     }

@@ -1,4 +1,4 @@
-package com.genersoft.iot.vmp.streamPush.bean;
+package com.genersoft.iot.vmp.vmanager.cloudRecord.bean;
 
 import lombok.Data;
 

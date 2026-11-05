@@ -26,8 +26,6 @@ public interface IRedisRpcPlayService {
 
     String frontEndCommand(String serverId, Integer channelId, int cmdCode, int parameter1, int parameter2, int combindCode2);
 
-    void playPush(String serverId, Integer id, ErrorCallback<StreamInfo> callback);
-
     DownloadFileInfo getRecordPlayUrl(String serverId, Integer recordId);
 
     AudioBroadcastResult audioBroadcast(String serverId, String deviceId, String channelDeviceId, Boolean broadcastMode);

@@ -103,8 +103,6 @@ public interface IRedisCatchStorage {
 
     void addNetInfo(Map<String, Double> networkInterfaces);
 
-    void sendStreamPushRequestedMsg(MessageForPushChannel messageForPushChannel);
-
     /**
      * 判断设备状态
      */
@@ -135,11 +133,6 @@ public interface IRedisCatchStorage {
 
     List<StreamAuthorityInfo> getAllStreamAuthorityInfo();
 
-    /**
-     * 发送redis消息 查询所有推流设备的状态
-     */
-    void sendStreamPushRequestedMsgForStatus();
-
     SystemAllInfo getSystemInfo();
 
     int getPushStreamCount(String id);
@@ -164,21 +157,11 @@ public interface IRedisCatchStorage {
 
     void sendPlatformStopPlayMsg(SendRtpInfo sendRtpItem, Platform platform, CommonGBChannel channel);
 
-    void addPushListItem(String app, String stream, MediaInfo param);
-
-    MediaInfo getPushListItem(String app, String stream);
-
-    void removePushListItem(String app, String stream, String mediaServerId);
-
-    void sendPushStreamClose(MessageForPushChannel messageForPushChannel);
-
     void addWaiteSendRtpItem(SendRtpInfo sendRtpItem, int platformPlayTimeout);
 
     SendRtpInfo getWaiteSendRtpItem(String app, String stream);
 
     void sendStartSendRtp(SendRtpInfo sendRtpItem);
-
-    void sendPushStreamOnline(SendRtpInfo sendRtpItem);
 
     ServerInfo queryServerInfo(String serverId);
 

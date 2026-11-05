@@ -4,8 +4,6 @@ import com.genersoft.iot.vmp.gb28181.bean.CommonGBChannel;
 import com.genersoft.iot.vmp.gb28181.bean.Group;
 import com.genersoft.iot.vmp.gb28181.bean.GroupTree;
 import com.genersoft.iot.vmp.gb28181.bean.Platform;
-import com.genersoft.iot.vmp.web.custom.bean.CameraCount;
-import com.genersoft.iot.vmp.web.custom.bean.CameraGroup;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -126,10 +124,6 @@ public interface GroupMapper {
     @Select("SELECT * from wvp_common_group WHERE business_group = #{businessGroup} ")
     List<Group> queryByBusinessGroup(@Param("businessGroup") String businessGroup);
 
-    @Select("SELECT * from wvp_common_group WHERE business_group = #{businessGroup}")
-    @MapKey("id")
-    Map<Integer, CameraGroup> queryByBusinessGroupForMap(@Param("businessGroup") String businessGroup);
-
     @Delete("DELETE FROM wvp_common_group WHERE business_group = #{businessGroup}")
     int deleteByBusinessGroup(@Param("businessGroup") String businessGroup);
 
@@ -246,25 +240,11 @@ public interface GroupMapper {
     void deletePlatformGroup(@Param("groupId") int groupId);
 
     @Select("SELECT * from wvp_common_group WHERE alias = #{alias} ")
-    CameraGroup queryGroupByAlias(@Param("alias") String alias);
+    Group queryGroupByAlias(@Param("alias") String alias);
 
     @Select("SELECT * from wvp_common_group WHERE alias = #{alias} and  business_group = #{businessGroup}")
     Group queryGroupByAliasAndBusinessGroup(@Param("alias") String alias, @Param("deviceId") String businessGroup);
 
-
-    @Select("<script>" +
-            " SELECT " +
-            "    MIN(coalesce( wdc.gb_parent_id, wdc.parent_id)) as deviceId," +
-            "    COUNT(*) AS allCount," +
-            "    SUM(CASE WHEN coalesce( wdc.gb_status, wdc.status) = 'ON' THEN 1 ELSE 0 END) AS onlineCount" +
-            " FROM " +
-            "    wvp_device_channel wdc " +
-            " where wdc.channel_type = 0 AND wdc.data_type != 2 AND (wdc.gb_ptz_type is null or  ( wdc.gb_ptz_type != 98 AND wdc.gb_ptz_type != 99)) " +
-            " AND coalesce( wdc.gb_parent_id, wdc.parent_id) in " +
-            " <foreach collection='groupList'  item='item'  open='(' separator=',' close=')' > #{item.deviceId}</foreach>" +
-            " GROUP BY coalesce(wdc.gb_parent_id, wdc.parent_id)" +
-            "</script>")
-    List<CameraCount> queryCountWithChild(List<CameraGroup> groupList);
 
     @Select("SELECT * from wvp_common_group where alias is not null")
     @MapKey("alias")

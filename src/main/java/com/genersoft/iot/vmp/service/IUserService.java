@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface IUserService {
 
-    User getUser(String username, String password);
-
     boolean changePassword(int id, String password);
 
     User getUserById(int id);

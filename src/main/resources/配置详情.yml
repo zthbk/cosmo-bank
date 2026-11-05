@@ -62,8 +62,8 @@ spring:
       type: com.zaxxer.hikari.HikariDataSource
       driver-class-name: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://127.0.0.1:3306/wvp2?useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&serverTimezone=PRC&useSSL=false&allowMultiQueries=true
-      username: root
-      password: root123
+      username: ${MYSQL_USER:root}
+      password: ${MYSQL_PASSWORD:}
       hikari:
           connection-timeout: 20000             # 是客户端等待连接池连接的最大毫秒数
           initialSize: 50                       # 连接池初始化连接数
@@ -88,7 +88,7 @@ server:
         # [可选] 证书文件路径，放置在resource/目录下即可，修改xxx为文件名
         key-store: classpath:xxx.jks
         # [可选] 证书密码
-        key-store-password: password
+        key-store-password: ${KEYSTORE_PASSWORD:}
         # [可选] 证书类型， 默认为jks，根据实际修改
         key-store-type: JKS
         # 配置证书可以使用如下两项，如上面二选一即可
@@ -120,7 +120,7 @@ sip:
     # [可选]
     id: 44010200492000000001
     # [可选] 公共认证密码 移除密码将必须提前添加设备才能通过认证
-    password: admin123
+    password: ${SIP_PASSWORD}
     # [可选] 国标级联注册失败，再次发起注册的时间间隔。 默认60秒
     register-time-interval: 60
     # [可选] 云台控制速度
@@ -146,7 +146,7 @@ jt1078:
     #[必修修改] 1708设备接入的端口
     port: 21078
     #[可选] 设备鉴权的密码
-    password: admin123
+    password: ${JT1078_PASSWORD:}
 
 sy:
   enable: false
@@ -172,7 +172,7 @@ media:
     # [可选] 是否自动配置ZLM, 如果希望手动配置ZLM, 可以设为false, 不建议新接触的用户修改
     auto-config: true
     # [可选] zlm服务器的hook.admin_params=secret
-    secret: 035c73f7-bb6b-4889-a715-d9eb2d1925cc
+    secret: ${ZLM_SECRET}
     # 录像路径
     record-path: ./www/record
     # 录像保存时长

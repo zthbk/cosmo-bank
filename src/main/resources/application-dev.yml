@@ -22,7 +22,7 @@ spring:
       # [可选] 数据库 DB
       database: 7
       # [可选] 访问密码,若你的redis服务器没有设置密码，就不需要用密码去连接
-      password: luna
+      password: ${REDIS_PASSWORD:}
       # [可选] 超时时间
       timeout: 10000
   # mysql数据源
@@ -30,14 +30,14 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/wvp?useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&serverTimezone=PRC&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
-    username: root
-    password: 12345678
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
   # h2数据库
   #  datasource:
   #    driver-class-name: org.h2.Driver
   #    url: jdbc:h2:mem:wvp
   #    username: sa
-  #    password: 12345678
+  #    password: ${MYSQL_PASSWORD:}
   #    sql:
   #      init:
   #        # 启动时仅初始化内置的数据库，例如h2:mem
@@ -58,7 +58,7 @@ server:
     # [可选] 证书文件路径，放置在resource/目录下即可，修改xxx为文件名
     key-store: classpath:test.monitor.89iot.cn.jks
     # [可选] 证书密码
-    key-store-password: gpf64qmw
+    key-store-password: ${KEYSTORE_PASSWORD:}
     # [可选] 证书类型， 默认为jks，根据实际修改
     key-store-type: JKS
 
@@ -74,7 +74,7 @@ sip:
   # [可选]
   id: 41010500002000000001
   # [可选] 公共认证密码 移除密码将必须提前添加设备才能通过认证
-  password: 12345678
+  password: ${SIP_PASSWORD}
   # 是否存储alarm信息
   alarm: false
 
@@ -86,7 +86,7 @@ media:
   # [必须修改] zlm服务器的http.port
   http-port: 9092
   # [必选选] zlm服务器的hook.admin_params=secret
-  secret: TWSYFgYJOQWB4ftgeYut8DW4wbs7pQnj
+  secret: ${ZLM_SECRET}
   # 启用多端口模式, 多端口模式使用端口区分每路流，兼容性更好。 单端口使用流的ssrc区分， 点播超时建议使用多端口测试
   rtp:
     # [可选] 是否启用多端口模式, 开启后会在portRange范围内选择端口用于媒体流传输

@@ -33,9 +33,9 @@ services:
       - media-net
     environment:
       MYSQL_DATABASE: wvp
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in docker/.env}
       MYSQL_USER: wvp_user
-      MYSQL_PASSWORD: wvp_password
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in docker/.env}
       TZ: Asia/Shanghai
     # ports:
     #   - 3306:3306
@@ -110,7 +110,7 @@ services:
       # [可选] zlm服务器访问WVP所使用的IP, 默认使用127.0.0.1，zlm和wvp没有部署在同一台服务器时必须配置
       ZLM_HOOK_HOST: polaris-wvp
       ZLM_HOST: polaris-media
-      ZLM_SERCERT: su6TiedN2rVAmBbIDX0aa0QTiBJLBdcf
+      ZLM_SECRET: ${ZLM_SECRET:?set ZLM_SECRET in docker/.env}
 
       MediaHttp: ${WebHttp:-8080}
       #MediaHttps: ${WebHttps:-8081}
@@ -124,13 +124,14 @@ services:
       DATABASE_HOST: polaris-mysql
       DATABASE_PORT: 3306
       DATABASE_USER: wvp_user
-      DATABASE_PASSWORD: wvp_password
+      DATABASE_PASSWORD: ${MYSQL_PASSWORD}
 
       SIP_ShowIP: ${SIP_ShowIP}
       SIP_Port: ${SIP_Port:-8116}
       SIP_Domain: ${SIP_Domain}
       SIP_Id: ${SIP_Id}
-      SIP_Password: ${SIP_Password}
+      SIP_Password: ${SIP_Password:?set SIP_Password in docker/.env}
+      WVP_ADMIN_PASSWORD: ${WVP_ADMIN_PASSWORD:?set WVP_ADMIN_PASSWORD in docker/.env}
 
       RecordSip: ${RecordSip}
       RecordPushLive: ${RecordPushLive}

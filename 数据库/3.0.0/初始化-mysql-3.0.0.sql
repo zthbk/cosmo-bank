@@ -422,9 +422,10 @@ create table IF NOT EXISTS wvp_user_api_key
 
 
 /*初始数据*/
--- 初始化管理员账号，账号admin 密码admin（MD5加密后）
+-- 初始化管理员账号。密码为随机占位值，部署时必须通过 WVP_ADMIN_PASSWORD 环境变量初始化，
+-- 或执行 UPDATE wvp_user SET password=MD5('<新密码>'), default_password=TRUE WHERE username='admin';
 INSERT INTO wvp_user (id, username, password, role_id, create_time, update_time, push_key, default_password)
-VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 1, '2021-04-13 14:14:57', '2021-04-13 14:14:57',
+VALUES (1, 'admin', 'c1586fdbd29bd754ccf4622307124617', 1, '2021-04-13 14:14:57', '2021-04-13 14:14:57',
         '3e80d1762a324d5b0ff636e0bd16f1e3', TRUE);
 -- 初始化管理员角色
 INSERT INTO wvp_user_role

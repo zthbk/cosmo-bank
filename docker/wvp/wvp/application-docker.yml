@@ -38,7 +38,7 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://${DATABASE_HOST:127.0.0.1}:${DATABASE_PORT:3306}/wvp?useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&serverTimezone=PRC&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
         username: ${DATABASE_USER:root}
-        password: ${DATABASE_PASSWORD:root}
+        password: ${DATABASE_PASSWORD:}
 
 #[可选] 监听的HTTP端口, 网页和接口调用都是这个端口
 server:
@@ -104,7 +104,7 @@ media:
   # [可选] 是否自动配置ZLM, 如果希望手动配置ZLM, 可以设为false, 不建议新接触的用户修改
   auto-config: true
   # [可选] 
-  secret: ${ZLM_SERCERT}
+  secret: ${ZLM_SECRET}
   # 启用多端口模式, 多端口模式使用端口区分每路流，兼容性更好。 单端口使用流的ssrc区分， 点播超时建议使用多端口测试
   rtp:
     # [可选] 是否启用多端口模式, 开启后会在portRange范围内选择端口用于媒体流传输

@@ -30,6 +30,9 @@ public interface UserMapper {
     @Delete("DELETE from wvp_user WHERE id != 1 and id=#{id}")
     int delete(int id);
 
+    /**
+     * 仅用于注册 roleMap 结果映射；登录认证统一走 Spring Security，禁止调用本方法。
+     */
     @Select("select u.*,  r.name as roleName, r.authority as roleAuthority , r.create_time as role_create_time , r.update_time as role_update_time from wvp_user u, wvp_user_role r WHERE u.role_id=r.id and u.username=#{username} AND u.password=#{password}")
     @Results(id = "roleMap", value = {
             @Result(column = "role_id", property = "role.id"),

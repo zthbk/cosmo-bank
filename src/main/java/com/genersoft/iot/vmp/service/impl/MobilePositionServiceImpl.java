@@ -107,7 +107,8 @@ public class MobilePositionServiceImpl implements IMobilePositionService {
         List<MobilePosition> mobilePositionList = handlerCatchDataList.stream().filter(
                 mobilePosition -> mobilePosition.getChannelId() != null && mobilePosition.getChannelId() != 0).toList();
         // 发送通知，方便国标级联转发给上级
-        Thread.startVirtualThread(() -> platformChannelService.notifyMobilePosition(mobilePositionList));
+        new Thread(() -> platformChannelService.notifyMobilePosition(mobilePositionList),
+                "mobile-position-notify").start();
 
         // 批量保存到数据库
         int batchSize = 1000;

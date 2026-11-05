@@ -27,7 +27,9 @@ import javax.sip.InvalidArgumentException;
 import javax.sip.SipException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -405,7 +407,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
                     if (addGroupResult > 0) {
                         for (Region region : regionListNotShare) {
                             // 分组信息排序时需要将顶层排在最后
-                            channelList.addFirst(CommonGBChannel.build(region));
+                            channelList.add(0, CommonGBChannel.build(region));
                         }
                     }
                 }
@@ -419,7 +421,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
                     if (addGroupResult > 0) {
                         for (Group group : groupListNotShare) {
                             // 分组信息排序时需要将顶层排在最后
-                            channelList.addFirst(CommonGBChannel.build(group));
+                            channelList.add(0, CommonGBChannel.build(group));
                         }
                     }
                 }
@@ -654,7 +656,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
             List<PlatformChannel> conflictList = platformChannelMapper.queryByCustomDeviceId(channel.getCustomDeviceId(), channel.getId());
             if (!conflictList.isEmpty()) {
                 throw new ControllerException(ErrorCode.ERROR100.getCode(),
-                        buildCustomDeviceIdConflictMessage(channel, platform, conflictList.getFirst()));
+                        buildCustomDeviceIdConflictMessage(channel, platform, conflictList.get(0)));
             }
         }
         if (!userSetting.getServerId().equals(platform.getServerId())) {
@@ -886,7 +888,8 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
         Map<Integer, List<MobilePosition>> channelIdMap = mobilePositionList.stream().collect(Collectors.groupingBy(MobilePosition::getChannelId));
 
         List<ShareGBChannel> shareGBChannels = platformChannelMapper.queryShareChannelInPlatformsAndChannelIds(platformMap.values(), channelIdMap.keySet());
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        try {
             for (ShareGBChannel shareGBChannel : shareGBChannels) {
                 List<MobilePosition> mobilePositions = channelIdMap.get(shareGBChannel.getGbId());
                 if (mobilePositions == null || mobilePositions.isEmpty()) {
@@ -916,6 +919,16 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
                         }
                     }
                 });
+            }
+        } finally {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
             }
         }
     }

@@ -1479,7 +1479,7 @@ public class DeviceServiceImpl implements IDeviceService {
             timeStatisticsList.add(timeStatistics);
         }
         // 第一个数据由于没有上一个时间戳，无法计算时间差，去掉
-        timeStatisticsList.removeFirst();
+        timeStatisticsList.remove(0);
         if (timeStatisticsList.size() - 1 > count) {
             timeStatisticsList = timeStatisticsList.subList(timeStatisticsList.size() - count, timeStatisticsList.size());
         }

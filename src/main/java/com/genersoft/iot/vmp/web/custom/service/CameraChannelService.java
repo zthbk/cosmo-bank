@@ -34,7 +34,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -328,7 +330,8 @@ public class CameraChannelService implements CommandLineRunner {
     @EventListener
     public void onApplicationEvent(MobilePositionEvent event) {
         List<? extends MobilePosition> mobilePositionList = event.getMobilePositionList();
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        try {
             for (MobilePosition mobilePosition : mobilePositionList) {
                 executor.submit(() -> {
                     // 从redis补充信息
@@ -355,10 +358,17 @@ public class CameraChannelService implements CommandLineRunner {
                     redisTemplateForString.convertAndSend(REDIS_GPS_MESSAGE, jsonObject.toString());
                 });
             }
+        } finally {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
-
-
-
     }
 
     public SYMember getMember(String deviceId) {

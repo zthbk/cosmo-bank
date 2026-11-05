@@ -13,7 +13,6 @@ public class SchedulingConfig {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(5);
         scheduler.setThreadNamePrefix("scheduled-");
-        scheduler.setVirtualThreads(true);  // 必须在 initialize() 之前
         scheduler.initialize();
         return scheduler;
     }

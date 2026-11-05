@@ -65,7 +65,7 @@ public class MediaServiceImpl implements IMediaService {
         }else {
             ResultForOnPublish result = new ResultForOnPublish();
             // app 非 RTP_APP 的流， 如果是国标对讲或者广播则默认获取声音并且不录制， 其他的流先查询是否有代理配置，如果没有代理配置再进行鉴权
-            if (MediaStreamUtil.GB28181_TALK.equals(app) || MediaStreamUtil.GB28181_BROADCAST.equals(app) || MediaStreamUtil.JT_TALK.equals(app)) {
+            if (MediaStreamUtil.GB28181_TALK.equals(app) || MediaStreamUtil.GB28181_BROADCAST.equals(app)) {
                 result.setEnable_mp4(false);
                 result.setEnable_audio(true);
                 return result;

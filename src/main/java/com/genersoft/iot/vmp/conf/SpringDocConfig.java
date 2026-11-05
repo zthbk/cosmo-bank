@@ -100,14 +100,6 @@ public class SpringDocConfig {
     }
 
     @Bean
-    public GroupedOpenApi publicApi7() {
-        return GroupedOpenApi.builder()
-                .group("6. 部标设备")
-                .packagesToScan("com.genersoft.iot.vmp.jt1078.controller")
-                .build();
-    }
-
-    @Bean
     public GroupedOpenApi publicApi99() {
         return GroupedOpenApi.builder()
                 .group("99. 第三方接口")

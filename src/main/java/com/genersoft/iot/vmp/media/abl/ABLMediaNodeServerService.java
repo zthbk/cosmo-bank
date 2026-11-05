@@ -87,24 +87,6 @@ public class ABLMediaNodeServerService implements IMediaNodeServerService {
         }
     }
 
-//    @Override
-//    public int createJTTServer(MediaServer mediaServer, String stream, Integer port, Boolean disableVideo, Boolean disableAudio, Integer tcpMode) {
-//        Boolean recordSip = userSetting.getRecordSip();
-//        return ablresTfulUtils.openRtpServer(mediaServer, MediaApp.JT1078, stream, 96, port, tcpMode, disableAudio?1:0, recordSip, true);
-//    }
-//
-//    @Override
-//    public void closeJTTServer(MediaServer mediaServer, String streamId, CommonCallback<Boolean> callback) {
-//        if (mediaServer == null) {
-//            return;
-//        }
-//        ABLResult result = ablresTfulUtils.closeStreams(mediaServer, MediaApp.JT1078, streamId);
-//        logger.info("关闭JT-RTP Server " +  result);
-//        if (result.getCode() != 0) {
-//            logger.error("[JT-closeRtpServer] 失败: {}", result.getMemo());
-//        }
-//    }
-
     @Override
     public void closeStreams(MediaServer mediaServer, String app, String streamId) {
         ABLResult result = ablresTfulUtils.closeStreams(mediaServer, app, streamId);

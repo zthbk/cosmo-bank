@@ -307,19 +307,6 @@
             <version>33.4.8-jre</version>
         </dependency>
 
-        <!--ftp server-->
-        <dependency>
-            <groupId>org.apache.ftpserver</groupId>
-            <artifactId>ftpserver-core</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.ftpserver</groupId>
-            <artifactId>ftplet-api</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-
         <!-- 自动化生成代码工具 -->
         <dependency>
             <groupId>org.projectlombok</groupId>

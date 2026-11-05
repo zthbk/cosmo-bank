@@ -7,7 +7,6 @@ import com.genersoft.iot.vmp.gb28181.task.deviceSubscribe.SubscribeTaskRunner;
 import com.genersoft.iot.vmp.gb28181.task.platformStatus.PlatformStatusTaskRunner;
 import com.genersoft.iot.vmp.gb28181.transmit.event.request.impl.message.response.cmd.PresetQueryResponseMessageHandler;
 import com.genersoft.iot.vmp.gb28181.utils.VectorTileCatch;
-import com.genersoft.iot.vmp.jt1078.session.FtpDownloadManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -92,16 +91,6 @@ class DelayQueueExpirationTest {
         ReflectionTestUtils.setField(runner, "keepaliveTaskDelayQueue", queue);
 
         assertDoesNotThrow(runner::expirationCheckForKeepalive);
-        assertPollInsteadOfBlocking(queue);
-    }
-
-    @Test
-    void ftpDownloadCleanup_shouldNotBlockWhenEntryIsRemovedAfterQueueCheck() throws Exception {
-        FtpDownloadManager manager = new FtpDownloadManager();
-        DelayQueue<Delayed> queue = queueWithRemovalRace();
-        ReflectionTestUtils.setField(manager, "downloadCatchQueue", queue);
-
-        assertDoesNotThrow(manager::downloadCatchCheck);
         assertPollInsteadOfBlocking(queue);
     }
 

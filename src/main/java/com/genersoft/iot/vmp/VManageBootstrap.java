@@ -1,6 +1,5 @@
 package com.genersoft.iot.vmp;
 
-import com.genersoft.iot.vmp.jt1078.util.ClassUtil;
 import com.genersoft.iot.vmp.utils.GitUtil;
 import com.genersoft.iot.vmp.utils.SpringBeanFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,6 @@ public class VManageBootstrap extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		VManageBootstrap.args = args;
 		VManageBootstrap.context = SpringApplication.run(VManageBootstrap.class, args);
-		ClassUtil.context = VManageBootstrap.context;
 		GitUtil gitUtil = SpringBeanFactory.getBean("gitUtil");
 		if (gitUtil == null) {
 			log.info("获取版本信息失败");

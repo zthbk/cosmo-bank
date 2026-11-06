@@ -211,154 +211,6 @@ create table IF NOT EXISTS wvp_media_server
     constraint uk_media_server_unique_ip_http_port unique (ip, http_port, server_id)
 );
 
-drop table IF EXISTS wvp_platform;
-create table IF NOT EXISTS wvp_platform
-(
-    id                    serial primary key,
-    enable                bool default false,
-    name                  character varying(255),
-    server_gb_id          character varying(50),
-    server_gb_domain      character varying(50),
-    server_ip             character varying(50),
-    server_port           integer,
-    device_gb_id          character varying(50),
-    device_ip             character varying(50),
-    device_port           character varying(50),
-    username              character varying(255),
-    password              character varying(50),
-    expires               character varying(50),
-    keep_timeout          character varying(50),
-    transport             character varying(50),
-    civil_code            character varying(50),
-    manufacturer          character varying(255),
-    model                 character varying(255),
-    address               character varying(255),
-    character_set         character varying(50),
-    ptz                   bool default false,
-    rtcp                  bool default false,
-    status                bool default false,
-    catalog_group         integer,
-    register_way          integer,
-    secrecy               integer,
-    create_time           character varying(50),
-    update_time           character varying(50),
-    as_message_channel    bool default false,
-    catalog_with_platform integer default 1,
-    catalog_with_group    integer default 1,
-    catalog_with_region   integer default 1,
-    auto_push_channel     bool default true,
-    send_stream_ip        character varying(50),
-    server_id             character varying(50),
-    constraint uk_platform_unique_server_gb_id unique (server_gb_id)
-);
-
-drop table IF EXISTS wvp_platform_channel;
-create table IF NOT EXISTS wvp_platform_channel
-(
-    id                           serial primary key,
-    platform_id                  integer,
-    device_channel_id            integer,
-    custom_device_id             character varying(50),
-    custom_name                  character varying(255),
-    custom_manufacturer          character varying(50),
-    custom_model                 character varying(50),
-    custom_owner                 character varying(50),
-    custom_civil_code            character varying(50),
-    custom_block                 character varying(50),
-    custom_address               character varying(50),
-    custom_parental              integer,
-    custom_parent_id             character varying(50),
-    custom_safety_way            integer,
-    custom_register_way          integer,
-    custom_cert_num              character varying(50),
-    custom_certifiable           integer,
-    custom_err_code              integer,
-    custom_end_time              character varying(50),
-    custom_secrecy               integer,
-    custom_ip_address            character varying(50),
-    custom_port                  integer,
-    custom_password              character varying(255),
-    custom_status                character varying(50),
-    custom_longitude             double precision,
-    custom_latitude              double precision,
-    custom_ptz_type              integer,
-    custom_position_type         integer,
-    custom_room_type             integer,
-    custom_use_type              integer,
-    custom_supply_light_type     integer,
-    custom_direction_type        integer,
-    custom_resolution            character varying(255),
-    custom_business_group_id     character varying(255),
-    custom_download_speed        character varying(255),
-    custom_svc_space_support_mod integer,
-    custom_svc_time_support_mode integer,
-    constraint uk_platform_gb_channel_platform_id_catalog_id_device_channel_id unique (platform_id, device_channel_id),
-    constraint uk_platform_gb_channel_device_id unique (custom_device_id)
-);
-
-drop table IF EXISTS wvp_platform_group;
-create table IF NOT EXISTS wvp_platform_group
-(
-    id          serial primary key,
-    platform_id integer,
-    group_id    integer,
-    constraint uk_wvp_platform_group_platform_id_group_id unique (platform_id, group_id)
-);
-
-drop table IF EXISTS wvp_platform_region;
-create table IF NOT EXISTS wvp_platform_region
-(
-    id          serial primary key,
-    platform_id integer,
-    region_id   integer,
-    constraint uk_wvp_platform_region_platform_id_group_id unique (platform_id, region_id)
-);
-
-drop table IF EXISTS wvp_stream_proxy;
-create table IF NOT EXISTS wvp_stream_proxy
-(
-    id                         serial primary key,
-    type                       character varying(50),
-    app                        character varying(255),
-    stream                     character varying(255),
-    src_url                    character varying(255),
-    timeout                    integer,
-    ffmpeg_cmd_key             character varying(255),
-    rtsp_type                  character varying(50),
-    media_server_id            character varying(50),
-    enable_audio               bool default false,
-    enable_mp4                 bool default false,
-    pulling                    bool default false,
-    enable                     bool default false,
-    enable_remove_none_reader  bool default false,
-    create_time                character varying(50),
-    name                       character varying(255),
-    update_time                character varying(50),
-    stream_key                 character varying(255),
-    server_id                  character varying(50),
-    enable_disable_none_reader bool default false,
-    relates_media_server_id    character varying(50),
-    constraint uk_stream_proxy_app_stream unique (app, stream)
-);
-
-drop table IF EXISTS wvp_stream_push;
-create table IF NOT EXISTS wvp_stream_push
-(
-    id                 serial primary key,
-    app                character varying(255),
-    stream             character varying(255),
-    create_time        character varying(50),
-    media_server_id    character varying(50),
-    server_id          character varying(50),
-    push_time          character varying(50),
-    status             bool default false,
-    update_time        character varying(50),
-    pushing            bool default false,
-    self               bool default false,
-    start_offline_push bool default true,
-    constraint uk_stream_push_app_stream unique (app, stream)
-);
-
 drop table IF EXISTS wvp_cloud_record;
 create table IF NOT EXISTS wvp_cloud_record
 (
@@ -524,17 +376,6 @@ call wvp_20240528();
 DROP PROCEDURE wvp_20240528;
 DELIMITER ;
 
-create table IF NOT EXISTS wvp_user_api_key (
-                                  id serial primary key ,
-                                  user_id bigint,
-                                  app character varying(255) ,
-                                  api_key text,
-                                  expired_at bigint,
-                                  remark character varying(255),
-                                  enable bool default true,
-                                  create_time character varying(50),
-                                  update_time character varying(50)
-);
 
 /*
 * 20241222
@@ -605,18 +446,6 @@ DELIMITER ;
 /*
 * 20241231
 */
-DELIMITER //
-CREATE PROCEDURE `wvp_20241231`()
-BEGIN
-    IF not EXISTS (SELECT column_name FROM information_schema.columns
-                   WHERE TABLE_SCHEMA = (SELECT DATABASE()) and table_name = 'wvp_stream_proxy' and column_name = 'relates_media_server_id')
-    THEN
-        alter table wvp_stream_proxy add relates_media_server_id character varying(50);
-    END IF;
-END; //
-call wvp_20241231();
-DROP PROCEDURE wvp_20241231;
-DELIMITER ;
 /*
 * 20250111
 */
@@ -695,24 +524,12 @@ BEGIN
     END IF;
 
     IF not EXISTS (SELECT column_name FROM information_schema.columns
-                   WHERE TABLE_SCHEMA = (SELECT DATABASE()) and table_name = 'wvp_stream_proxy' and column_name = 'server_id')
-    THEN
-        alter table wvp_stream_proxy add server_id character varying(50);
-        update wvp_stream_proxy set server_id = serverId;
-    END IF;
-
-    IF not EXISTS (SELECT column_name FROM information_schema.columns
                    WHERE TABLE_SCHEMA = (SELECT DATABASE()) and table_name = 'wvp_cloud_record' and column_name = 'server_id')
     THEN
         alter table wvp_cloud_record add server_id character varying(50);
         update wvp_cloud_record set server_id = serverId;
     END IF;
 
-    IF not EXISTS (SELECT column_name FROM information_schema.columns
-                   WHERE TABLE_SCHEMA = (SELECT DATABASE()) and table_name = 'wvp_platform' and column_name = 'server_id')
-    THEN
-        alter table wvp_platform add server_id character varying(50);
-    END IF;
 END; //
 call wvp_20250312();
 DROP PROCEDURE wvp_20250312;

@@ -126,7 +126,7 @@ docker compose up -d
 
 - 启动 MySQL 8.4、Redis、ZLM、WVP、Nginx。
 - 默认通过 `8080` 访问 Nginx，SIP 端口默认 `8116`；端口以 `docker/.env` 为准。
-- `docker/.env` 中 `MYSQL_PASSWORD`、`MYSQL_ROOT_PASSWORD`、`SIP_Password`、`WVP_ADMIN_PASSWORD`、`ZLM_SECRET` 等为必填项，默认可能为空；需在本地填写，且不要提交真实口令。
+- 复制 `docker/.env.example` 为 `docker/.env` 后填写必填项；`.env` 不再跟踪，不要提交真实口令。
 - 停止：`docker compose down`。
 
 ## 5. 访问与接口

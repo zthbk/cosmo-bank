@@ -21,7 +21,7 @@ docker compose up -d
 ```
 
 - 编排 MySQL 8.4、Redis、ZLM、WVP、nginx。
-- `docker/.env` 的 `MYSQL_PASSWORD`、`SIP_Password`、`WVP_ADMIN_PASSWORD`、`ZLM_SECRET` 等必填项需本地填写，不提交真实口令。
+- 复制 `docker/.env.example` 为 `docker/.env` 后填写必填项；`.env` 不提交，真实口令只放本地。
 - 当前没有前端工程，nginx 仅提供反向代理；新前端创建后恢复 `docker/nginx/Dockerfile` 的构建阶段。
 
 ## 3. 端口

@@ -78,7 +78,7 @@ cd docker && docker compose up -d
 - 提交信息使用中文，简短明确（建议不超过 20 字）；一个清理批次一个提交，不混合无关改动。
 - 提交前至少执行：`mvn -q -DskipTests compile`、`mvn -q -DskipTests test-compile`；涉及删除类时用 `mvn -q clean package -DskipTests`；再执行 `git diff --check` 和相关引用检索。
 - 不提交：`target/`、`logs/`、`config/`、`打包/`、`docker/volumes/`、本地 `application-*.yml`、本地 compose 覆盖文件、ZLM 开发配置、真实口令/密钥。
-- `docker/.env` 已被 Git 跟踪且部分必填值为空；不要写入并提交真实口令，使用本地未跟踪环境变量或内联值。
+- `docker/.env` 不再跟踪；从 `docker/.env.example` 复制后本地填写，禁止提交真实口令。
 - PR/评审先给结论：建议合并 / 可合并但需处理 / 建议发回作者修改；再说明 PR 目的、描述是否成立、合并后待办。
 
 ## 已知陷阱
@@ -87,7 +87,7 @@ cd docker && docker compose up -d
 - **`application-*.yml` 不打进 jar。** `maven-jar-plugin` 排除 `application.yml`、`application-*.yml`，`maven-resources-plugin` 只复制到 `target/`；`java -jar` 从仓库根目录启动会缺少 DataSource 配置。用源码/IDE 启动，或显式指定外部配置目录。
 - **`pom.xml` 硬编码 `skipTests=true`。** `-DskipTests=false` 不会执行测试；`test-compile` 仍会编译测试。需要真正跑测试时改 IDE 配置或临时改 pom 后恢复。
 - **本地配置默认不完整。** `application.yml` 激活 `dev`，`application-dev.yml`/`application-local.yml` 被 gitignore；新环境需自行创建本地 profile，MySQL 密码只放未跟踪配置，不提交。
-- **`docker/.env` 必填值可能为空。** 直接 `docker compose` 会因 `MYSQL_PASSWORD`、`SIP_Password`、`WVP_ADMIN_PASSWORD`、`ZLM_SECRET` 为空而插值失败；本地起 Redis/ZLM 可用内联占位值，真实部署再填本地 env。
+- **`docker/.env` 需本地创建。** 先复制 `docker/.env.example` 为 `docker/.env`；直接 `docker compose` 会因必填值为空而插值失败，真实口令只填本地 `.env`。
 - **管理员初始密码。** 初始化 SQL 不保留可用默认口令；首次启动需设置 `WVP_ADMIN_PASSWORD`（满足复杂度），否则 `AdminPasswordInitializer` 只告警，登录密码仍不可用。
 - **C3 不能直接删 `Platform`。** 必须先把 `SIPRequestProcessorParent` 的 SDP 应答改为设备 IP/端口/设备 ID 重载，去掉 `InviteRequestProcessor` 中的 `new Platform()` 地址载体，再处理 `SsrcTransaction.platformId`、`SendRtpInfo.sendToPlatform`、`AudioBroadcastCatch.isFromPlatform`。
 - **`doc/编程规范.md` 与上游 WVP 文档已过时。** 它们仍描述 JT1078/JT808、流代理、推流、旧 Vue 2 前端和多数据库；根目录 `README.md` 已按当前项目重写。以当前代码、`README.md`、本文件和清理计划为准，不要据此恢复已删除模块。

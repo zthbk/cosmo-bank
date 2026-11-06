@@ -22,7 +22,7 @@ const routes = [
         component: () => import('@/views/monitor/index.vue'),
         meta: { title: '动态监控' }
       },
-      { path: 'alarm/list', name: 'AlarmList', component: Placeholder, meta: { title: '告警列表' } },
+      { path: 'alarm/list', name: 'AlarmList', component: () => import('@/views/alarm/list/index.vue'), meta: { title: '告警列表' } },
       { path: 'alarm/config', name: 'AlarmConfig', component: Placeholder, meta: { title: '告警配置' } },
       { path: 'alarm/area', name: 'AlarmArea', component: Placeholder, meta: { title: '特定范围' } },
       { path: 'alarm/analysis', name: 'AlarmAnalysis', component: Placeholder, meta: { title: '告警分析' } },

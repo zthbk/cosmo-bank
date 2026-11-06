@@ -6,7 +6,7 @@
 - 核心依赖：`spring-boot-starter-web/security/data-redis`、`mybatis-spring-boot-starter`、`mysql-connector-j` 8.4、`jain-sip-ri`、`okhttp`、`springdoc/knife4j`、`fastjson2`、`caffeine`、`lombok`。
 - 部署方式：`docker/docker-compose.yml` 编排 MySQL 8.4、Redis、ZLM、WVP、Nginx；本地开发可只用 Docker 起 Redis/ZLM，WVP 从 IDE 或 Maven 启动。
 - 入口：`src/main/java/com/genersoft/iot/vmp/VManageBootstrap.java`；后端代码根目录：`src/main/java/com/genersoft/iot/vmp/`。
-- 当前状态：旧 `web/` 已删除，新 Vue 3 前端 `web/` 已创建（M1 登录与全局框架）；JT1078/FTP、地图/瓦片、ABL、流代理、推流与 `/api/sy`、非 MySQL 数据库支持已删除；C3 平台级联处于冻结观察期。
+- 当前状态：旧 `web/` 已删除，新 Vue 3 前端 `web/` 已创建（M1 登录与全局框架、M2 动态监控与告警列表）；`biz/` 已建 5 类档案 CRUD 与告警接入/查询；JT1078/FTP、地图/瓦片、ABL、流代理、推流与 `/api/sy`、非 MySQL 数据库支持已删除；C3 平台级联处于冻结观察期。
 
 ## 常用命令
 
@@ -42,6 +42,7 @@ cd web && npm run build             # 构建到 src/main/resources/static
 ## 架构约束
 
 - **只支持 MySQL 8.4。** 不要新增 PostgreSQL、Kingbase、达梦、H2 的驱动、SQL 脚本、方言分支或 `databaseId` 分支。
+- **表名前缀：** 视频底座表用 `wvp_`，岸端业务表用 `biz_`；业务表脚本放 `sql/3.1.0/`、`sql/3.2.0/` 等版本目录，不修改已发布脚本。
 - **运行态分三层：** MySQL（配置/历史）、Redis（设备、InviteInfo、SIP 事务、集群消息）、JVM（等待回调、DynamicTask）。修改点播/会话逻辑必须同时考虑三层及清理路径。
 - **SIP 事务以 Redis 为权威。** `SipInviteSessionManager` 的事务重启后仍可能存在；设备 BYE/事务清理优先复用 `DialogTerminationService`，不要新开直接 `cmder.streamByeCmd` 的旁路。
 - **DAO 参数必须绑定。** 动态 SQL 放 `dao/provider`，外部参数一律 `#{}`；`${}` 只能用于白名单排序字段或内部常量，禁止拼接用户输入；不新增 XML Mapper。

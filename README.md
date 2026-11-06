@@ -16,6 +16,8 @@
 | 云录像、录像计划、录像下载 | 保留 | `/api/cloud/record`、`/api/record/plan`、`/api/gb_record` |
 | 设备告警、移动位置 | 保留 | 作为设备侧来源，不等同于 AI 告警业务 |
 | 用户、角色、API Key、日志 | 保留 | 登录、权限、审计基础 |
+| 企业/船舶/通道/终端/值班室档案 | 后端已建 | `biz_*` 表与 `/biz/*` CRUD，前端页面待建 |
+| AI 告警接入与查询 | 基础能力 | `POST /biz/alarm`（AK/SK）、列表/详情/已读；处置与统计待建 |
 | GB28181 平台级联 | 冻结 | 代码暂存，C3 删除前不对外承诺 |
 | JT1078/JT808、FTP | 已删除 | 终端不含 JT808，定位走 HTTPS |
 | 地图与矢量瓦片 | 已删除 | 无电子地图需求 |
@@ -38,6 +40,7 @@
 ```text
 src/main/java/com/genersoft/iot/vmp/
 ├── gb28181/        SIP 信令、设备/通道、点播、回放、级联、PTZ、位置
+├── biz/            岸端业务：企业/船舶/通道/终端/值班室档案、告警接入与查询
 ├── media/          ZLMediaKit 接入、媒体 Bean/Event
 ├── service/        跨模块服务、录像、告警、集群 RPC
 ├── storager/       Redis 缓存与 DAO
@@ -157,6 +160,8 @@ docker compose up -d
   - `/api/position`：移动位置。
   - `/api/user`、`/api/role`、`/api/userApiKey`：用户、角色、API Key。
   - `/api/server`、`/api/log`：服务状态与日志。
+  - `/biz/company`、`/biz/ship`、`/biz/channel`、`/biz/terminal`、`/biz/duty-room`：岸端档案 CRUD。
+  - `/biz/alarm`：终端告警上报（AK/SK）、列表、详情与已读。
   - `/api/v1/*`：外部兼容 API，响应结构不要随意修改。
 - `/api/platform/*` 平台级联接口仍存在但已冻结，不作为当前交付能力。
 

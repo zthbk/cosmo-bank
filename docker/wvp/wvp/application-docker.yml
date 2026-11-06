@@ -124,6 +124,7 @@ user-settings:
     record-push-live: ${RecordPushLive:false}
     record-sip: ${RecordSip:false}
     stream-on-demand: true
+    sip-log: true
     interface-authentication: true
     # [可选] 级联录像查询(RecordInfo)回复的每页记录数量, 默认1000, 不分页请设为0或负数
     # record-info-page-size: ${RecordInfoPageSize:1000}
@@ -138,7 +139,7 @@ user-settings:
     #   - http://127.0.0.1:8080
     #   - http://0.0.0.0:8080
     #   - ${NGINX_HOST}
-    jwkFile: classpath:xxxxxxxxxxx.json
+    jwkFile: /opt/wvp/config/jwk.json
 logging:
   config: classpath:logback-spring.xml
 

@@ -1,17 +1,12 @@
 <!-- 封面 -->
 ![logo](_media/logo-mini.png)
 
-# WVP-PRO <small>2.0</small>
+# 岸端企业平台 <small>GB28181 视频底座</small>
 
-> 开箱即用的28181协议视频平台。
+> 面向船舶智能监控 2.0 的岸端视频与设备底座。
 
-- 基于GB/T28181-2016标准信令实现，兼容GB/T28181-2011。
-- 自带完整前端页面，开箱即用。
-- 完全开源，且使用MIT许可协议。可以在保留版权信息的基础上商用。
+- GB28181 设备接入、点播、回放、对讲、PTZ
+- ZLMediaKit 媒体节点、云录像、录像计划
+- 用户、角色、API Key 与日志
 
-[GitHub](https://github.com/648540858/wvp-GB28181-pro)
-[Gitee](https://gitee.com/pan648540858/wvp-GB28181-pro)
-
-<!-- 背景色 -->
-
-[//]: # ([comment]: <> &#40;![color]&#40;#f0f0f0&#41;&#41;)
+[开始阅读](README.md)

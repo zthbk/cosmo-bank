@@ -2,12 +2,24 @@
 
 # 云端录像
 
-![云端录像](_media/img_26.png)
-云端录像是对录制在zlm服务下的录像文件的管理，录像的文件路径默认在ZLM/www/record下。
+云端录像管理 ZLMediaKit 录制在 `media.record-path` 下的录像文件，默认路径为 ZLM 的 `www/record`。
 
-- 国标设备是否录像: 可以在WVP的配置中user-settings.record-sip设置为true那么每次点播以及录像回放都会录像;
-- 推流设备是否录像: 可以在WVP的配置中user-settings.record-push-live设置为true;
-- 拉流代理是否录像: 在添加和编辑拉流代理时可以指定, 每次点播都会进行录像
-- 录像文件存储路径配置: 可以修改media.record-path来修改录像路径,但是如果有旧的录像文件,请不要迁移,因为数据库记录了每一个录像的绝对路径,一旦修改会造成找到文件,无法定时移除以及播放
-- 录像保存时间: 可以修改media.record-day来修改录像保存时间,单位是天;
+## 1. 录像来源
 
+- 国标点播/回放：由 `user-settings.record-sip` 控制是否录制。
+- 录像计划：通过 `/api/record/plan` 配置通道与时间段，按计划录制。
+- 当前不支持推流、拉流代理录制；相关模块已删除。
+
+## 2. 查询与播放
+
+- 列表：`GET /api/cloud/record/list`
+- 日期列表：`GET /api/cloud/record/date/list`
+- 播放地址：`GET /api/cloud/record/play/path`
+- 下载/打包：`GET /api/cloud/record/download/zip`、`GET /api/cloud/record/zip`
+- 收藏：`GET /api/cloud/record/collect/add`、`GET /api/cloud/record/collect/delete`
+
+## 3. 保存策略
+
+- `media.record-path`：录像存储路径；修改前先迁移旧文件，数据库记录绝对路径。
+- `media.record-day`：保存天数。
+- 录像计划与通道绑定关系见 `/api/record/plan/channel/list`。

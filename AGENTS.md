@@ -61,17 +61,17 @@ cd docker && docker compose up -d
 
 | 文档 | 用途 | 注意 |
 |---|---|---|
-| `文档/编程规范.md` | 分层、Controller、事务、DAO、日志、并发、测试规范 | 已按当前基线重写 |
-| `文档/后端运行参考.local.md` | 能力边界、编译、配置、启动与端口 | 整理自原 `doc/` |
-| `文档/WVP功能参考.local.md` | 设备、通道、云录像、对讲、节点管理 | 整理自原 `doc/` |
-| `文档/GB28181流程与排障参考.local.md` | 注册、点播、编码规则、抓包与常见错误 | 整理自原 `doc/` |
-| `文档/岸端企业平台前端还原规格.local.md` | 前端页面、视觉、接口、任务书与指南核对 | 前端开发与验收基线 |
-| `文档/doc目录迁移说明.local.md` | 原 `doc/` 目录逐篇处置与引用更新 | 迁移记录 |
-| `文档/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚 | 本地计划，不随代码提交 |
-| `文档/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵 | C3 执行前必须逐项复核 |
-| `文档/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 | 本地设计文档 |
-| `文档/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 | 本地设计文档 |
-| `文档/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 | 旧 `web/` 已删除 |
+| `docs/guide/编程规范.md` | 分层、Controller、事务、DAO、日志、并发、测试规范 | 已按当前基线重写 |
+| `docs/local/后端运行参考.local.md` | 能力边界、编译、配置、启动与端口 | 整理自原 `doc/` |
+| `docs/local/WVP功能参考.local.md` | 设备、通道、云录像、对讲、节点管理 | 整理自原 `doc/` |
+| `docs/local/GB28181流程与排障参考.local.md` | 注册、点播、编码规则、抓包与常见错误 | 整理自原 `doc/` |
+| `docs/local/岸端企业平台前端还原规格.local.md` | 前端页面、视觉、接口、任务书与指南核对 | 前端开发与验收基线 |
+| `docs/local/doc目录迁移说明.local.md` | 原 `doc/` 目录逐篇处置与引用更新 | 迁移记录 |
+| `docs/local/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚 | 本地计划，不随代码提交 |
+| `docs/local/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵 | C3 执行前必须逐项复核 |
+| `docs/local/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 | 本地设计文档 |
+| `docs/local/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 | 本地设计文档 |
+| `docs/local/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 | 旧 `web/` 已删除 |
 | `README.md` | 当前项目说明、启动、部署与清理状态 | 与本文件同步维护 |
 | `docker/docker-compose.yml`、`docker/media/config.ini` | 部署编排与 ZLM 配置 | 本地覆盖文件不要提交 |
 | `sql/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 | 无 Flyway/Liquibase，按版本手工维护 |
@@ -94,7 +94,7 @@ cd docker && docker compose up -d
 - **`docker/.env` 需本地创建。** 先复制 `docker/.env.example` 为 `docker/.env`；直接 `docker compose` 会因必填值为空而插值失败，真实口令只填本地 `.env`。
 - **管理员初始密码。** 初始化 SQL 不保留可用默认口令；首次启动需设置 `WVP_ADMIN_PASSWORD`（满足复杂度），否则 `AdminPasswordInitializer` 只告警，登录密码仍不可用。
 - **C3 不能直接删 `Platform`。** 必须先把 `SIPRequestProcessorParent` 的 SDP 应答改为设备 IP/端口/设备 ID 重载，去掉 `InviteRequestProcessor` 中的 `new Platform()` 地址载体，再处理 `SsrcTransaction.platformId`、`SendRtpInfo.sendToPlatform`、`AudioBroadcastCatch.isFromPlatform`。
-- **上游 WVP 文档站已删除。** 原 `doc/` 的保留内容已整理到 `文档/`，`文档/编程规范.md` 已按当前基线重写；不要再按上游旧文档恢复 JT1078、流代理、推流、旧 Vue 2 前端或多数据库。
+- **上游 WVP 文档站已删除。** 原 `doc/` 的保留内容已整理到 `docs/local/`，`docs/guide/编程规范.md` 已按当前基线重写；不要再按上游旧文档恢复 JT1078、流代理、推流、旧 Vue 2 前端或多数据库。
 - **已删模块的表可能仍在。** `wvp_jt_terminal`、`wvp_jt_channel`、`wvp_stream_proxy`、`wvp_stream_push` 等可能尚未清理，但代码已不依赖；不要新增对这些表的查询。
 - **`GlobalResponseAdvice` 有路径例外。** `/api/v1`、`/api/video-`、`/index/hook` 等不自动包装；新增兼容接口时确认响应结构，避免重复包 `WVPResult`。
 - **`DynamicTask` key 全局唯一。** 完成、取消、超时后必须移除 future，否则同 key 无法重新注册；`DeferredResult` 只能成功一次，清理按本次请求拥有的状态做条件删除。

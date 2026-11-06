@@ -48,7 +48,7 @@ src/main/java/com/genersoft/iot/vmp/
 src/main/resources/ 配置、日志、SQL 映射
 docker/             Docker Compose、MySQL/Redis/ZLM/WVP/Nginx
 sql/                 按版本维护的 MySQL 脚本
-文档/               编程规范、运行参考、前端规格、改造方案与清理计划
+docs/               编程规范、运行参考、前端规格、改造方案与清理计划
 ```
 
 入口类：`src/main/java/com/genersoft/iot/vmp/VManageBootstrap.java`。
@@ -163,9 +163,9 @@ mvn -q clean package -DskipTests
 
 - 已完成：B4（非 MySQL 支持）、B1（JT1078/FTP）、B3（地图/瓦片）、C4（ABL）、C1（流代理）、C2（推流与 `/api/sy`）。
 - 进行中：C3 GB28181 平台级联，处于冻结观察期；未完成 SDP 地址重构前不要删除 `Platform` 类。
-- 旧 `web/` 已删除，新前端尚未创建；创建后按 `文档/岸端企业平台前端还原规格.local.md` 执行，不要执行旧前端构建命令。
+- 旧 `web/` 已删除，新前端尚未创建；创建后按 `docs/local/岸端企业平台前端还原规格.local.md` 执行，不要执行旧前端构建命令。
 - 已删除模块的数据库表和通道数据可能仍存在（如 `wvp_jt_*`、`wvp_stream_proxy`、`wvp_stream_push`、`data_type=2/3`），但代码已不依赖，清理需单独备份、停写、观察。
-- 上游 WVP 文档站（原 `doc/`）已删除，保留内容已整理到 `文档/`；`文档/编程规范.md` 已按当前基线重写，不要再按上游旧文档恢复已删除模块。
+- 上游 WVP 文档站（原 `doc/`）已删除，保留内容已整理到 `docs/local/`；`docs/guide/编程规范.md` 已按当前基线重写，不要再按上游旧文档恢复已删除模块。
 - `application-*.yml` 不会打进 jar；`java -jar` 从仓库根目录启动会缺少 DataSource 配置。请从源码/IDE 启动，或显式提供外部配置。
 - 本地 `target/`、`logs/`、`config/`、`打包/`、Docker 数据卷、私有 profile 与本地 compose 覆盖文件均不应提交。
 
@@ -173,17 +173,17 @@ mvn -q clean package -DskipTests
 
 | 文档 | 用途 |
 |---|---|
-| `文档/编程规范.md` | 分层、Controller、事务、DAO、日志、并发、测试规范（已按当前基线重写） |
-| `文档/后端运行参考.local.md` | 能力边界、编译、配置、启动与端口 |
-| `文档/WVP功能参考.local.md` | 设备、通道、云录像、对讲、节点管理 |
-| `文档/GB28181流程与排障参考.local.md` | 注册、点播、编码规则、抓包与常见错误 |
-| `文档/岸端企业平台前端还原规格.local.md` | 前端页面、视觉、接口、任务书与指南核对 |
-| `文档/doc目录迁移说明.local.md` | 原 `doc/` 目录逐篇处置与引用更新 |
-| `文档/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚（本地计划） |
-| `文档/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵（本地清单） |
-| `文档/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 |
-| `文档/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 |
-| `文档/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 |
+| `docs/guide/编程规范.md` | 分层、Controller、事务、DAO、日志、并发、测试规范（已按当前基线重写） |
+| `docs/local/后端运行参考.local.md` | 能力边界、编译、配置、启动与端口 |
+| `docs/local/WVP功能参考.local.md` | 设备、通道、云录像、对讲、节点管理 |
+| `docs/local/GB28181流程与排障参考.local.md` | 注册、点播、编码规则、抓包与常见错误 |
+| `docs/local/岸端企业平台前端还原规格.local.md` | 前端页面、视觉、接口、任务书与指南核对 |
+| `docs/local/doc目录迁移说明.local.md` | 原 `doc/` 目录逐篇处置与引用更新 |
+| `docs/local/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚（本地计划） |
+| `docs/local/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵（本地清单） |
+| `docs/local/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 |
+| `docs/local/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 |
+| `docs/local/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 |
 | `docker/docker-compose.yml`、`docker/media/config.ini` | 部署编排与 ZLM 配置 |
 | `sql/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 |
 

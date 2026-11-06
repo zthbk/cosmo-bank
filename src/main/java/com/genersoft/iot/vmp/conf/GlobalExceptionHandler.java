@@ -4,6 +4,7 @@ import com.genersoft.iot.vmp.conf.exception.ControllerException;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -97,6 +98,16 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<WVPResult<String>> exceptionHandler(ControllerException e) {
         return new ResponseEntity<>(WVPResult.fail(e.getCode(), e.getMsg()), HttpStatus.OK);
+    }
+
+    /**
+     * 数据访问异常，避免把 SQL 与表结构返回给前端
+     */
+    @ExceptionHandler(DataAccessException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public WVPResult<String> exceptionHandler(DataAccessException e) {
+        log.error("[数据访问异常]： ", e);
+        return WVPResult.fail(ErrorCode.ERROR500.getCode(), "数据访问失败");
     }
 
     /**

@@ -9,10 +9,11 @@
 | `3.0.0/初始化-mysql-3.0.0.sql` | 全新部署初始化 |
 | `3.0.0/更新-mysql-3.0.0.sql` | 3.0.0 版本内更新 |
 | `3.1.0/更新-biz-3.1.0.sql` | 岸端企业平台基础档案表：企业、船舶、船舶通道、终端、值班室 |
+| `3.2.0/更新-biz-alarm-3.2.0.sql` | 告警业务表：告警主表、文件、处置、模型、接入凭证 |
 
 说明：
 
-- `docker/docker-compose.yml` 挂载 `sql/3.0.0/初始化-mysql-3.0.0.sql` 与 `sql/3.1.0/更新-biz-3.1.0.sql` 作为 MySQL 首次初始化脚本。
-- 已有数据库升级：先执行 `3.0.0/更新-mysql-3.0.0.sql`，再执行 `3.1.0/更新-biz-3.1.0.sql`；脚本使用 `CREATE TABLE IF NOT EXISTS`，可重复执行。
+- `docker/docker-compose.yml` 挂载 `sql/3.0.0/初始化-mysql-3.0.0.sql`、`sql/3.1.0/更新-biz-3.1.0.sql` 与 `sql/3.2.0/更新-biz-alarm-3.2.0.sql` 作为 MySQL 首次初始化脚本。
+- 已有数据库升级：依次执行 `3.0.0/更新-mysql-3.0.0.sql`、`3.1.0/更新-biz-3.1.0.sql`、`3.2.0/更新-biz-alarm-3.2.0.sql`；脚本使用 `CREATE TABLE IF NOT EXISTS`，可重复执行。
 - 旧版本（2.6.9 至 2.7.4）脚本已移到仓库内 `backup/sql-old/`，该目录被 gitignore，不提交；需要回滚时从本地备份取用。
 - 数据库结构变更新增版本目录，不修改已发布版本脚本。

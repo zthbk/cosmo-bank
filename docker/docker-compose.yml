@@ -44,6 +44,7 @@ services:
       - ./volumes/mysql/data:/var/lib/mysql  
       - ../sql/3.0.0/初始化-mysql-3.0.0.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化SQL脚本
       - ../sql/3.1.0/更新-biz-3.1.0.sql:/docker-entrypoint-initdb.d/init-zz-3.1.0.sql  # 业务档案表
+      - ../sql/3.2.0/更新-biz-alarm-3.2.0.sql:/docker-entrypoint-initdb.d/init-zz-3.2.0.sql  # 告警业务表
     command: [
           # '--default-authentication-plugin=mysql_native_password',
           '--innodb-buffer-pool-size=80M',

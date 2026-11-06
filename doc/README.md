@@ -47,7 +47,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev,local
 ```
 
 - 默认 HTTP 18080、SIP 8116；ZLM HTTP 9092（以本地配置为准）。
-- 数据库初始化：`数据库/3.0.0/初始化-mysql-3.0.0.sql`。
+- 数据库初始化：`sql/3.0.0/初始化-mysql-3.0.0.sql`。
 - 首次启动设置 `WVP_ADMIN_PASSWORD`；真实口令只放本地未跟踪配置。
 
 ## 5. 说明

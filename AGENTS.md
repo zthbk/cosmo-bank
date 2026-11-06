@@ -70,7 +70,7 @@ cd docker && docker compose up -d
 | `README.md` | 当前项目说明、启动、部署与清理状态 | 与本文件同步维护 |
 | `doc/README.md` | 上游 WVP 文档站点说明 | 仍描述 JT1078/旧前端，不能作为当前功能清单 |
 | `docker/docker-compose.yml`、`docker/media/config.ini` | 部署编排与 ZLM 配置 | 本地覆盖文件不要提交 |
-| `数据库/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 | 无 Flyway/Liquibase，按版本手工维护 |
+| `sql/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 | 无 Flyway/Liquibase，按版本手工维护 |
 
 ## Git 工作流
 

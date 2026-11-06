@@ -13,8 +13,8 @@
 
 - 仅支持 MySQL 8.4；不新增 PostgreSQL、金仓、达梦、H2 分支。
 - 数据库名 `wvp`，字符集 `utf8mb4`。
-- 初始化脚本：`数据库/3.0.0/初始化-mysql-3.0.0.sql`。
-- 升级脚本按 `数据库/<version>/` 顺序执行；无 Flyway/Liquibase。
+- 初始化脚本：`sql/3.0.0/初始化-mysql-3.0.0.sql`。
+- 升级脚本按 `sql/<version>/` 顺序执行；无 Flyway/Liquibase。
 
 表 1 给出数据源必填项。
 

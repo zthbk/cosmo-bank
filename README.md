@@ -47,7 +47,7 @@ src/main/java/com/genersoft/iot/vmp/
 └── utils/          时间、媒体、通用工具
 src/main/resources/ 配置、日志、SQL 映射
 docker/             Docker Compose、MySQL/Redis/ZLM/WVP/Nginx
-数据库/             按版本维护的 MySQL 脚本
+sql/                 按版本维护的 MySQL 脚本
 doc/                编程规范与站点
 文档/               改造方案、清理计划、C3 清单、前端契约
 ```
@@ -71,10 +71,10 @@ doc/                编程规范与站点
 
 ```bash
 mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS wvp DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-mysql -uroot -p wvp < 数据库/3.0.0/初始化-mysql-3.0.0.sql
+mysql -uroot -p wvp < sql/3.0.0/初始化-mysql-3.0.0.sql
 ```
 
-数据库脚本按版本维护，无 Flyway/Liquibase；生产升级按 `数据库/<version>/更新-*.sql` 顺序执行。
+数据库脚本按版本维护，无 Flyway/Liquibase；生产升级按 `sql/<version>/更新-*.sql` 顺序执行。
 
 ### 4.3 配置
 
@@ -181,7 +181,7 @@ mvn -q clean package -DskipTests
 | `文档/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 |
 | `文档/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 |
 | `docker/docker-compose.yml`、`docker/media/config.ini` | 部署编排与 ZLM 配置 |
-| `数据库/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 |
+| `sql/3.0.0/初始化-mysql-3.0.0.sql` | MySQL 初始化脚本 |
 
 ## 9. 提交约定
 

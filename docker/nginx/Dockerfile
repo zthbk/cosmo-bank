@@ -1,28 +1,10 @@
-FROM ubuntu:24.04 AS builder
-
-
-RUN apt-get update && \
-    apt-get install -y nodejs npm  && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY ./web /build
-WORKDIR /build
-
-RUN npm --registry=https://registry.npmmirror.com install
-RUN npm run build:prod
-
-WORKDIR /src/main/resources
-RUN ls
-
-WORKDIR /src/main/resources/static
-RUN ls
-
 FROM nginx:alpine
 
 ARG TZ=Asia/Shanghai
+ENV TZ=${TZ}
 
+# 新前端尚未创建：先提供空静态目录，避免 COPY ./web 导致构建失败。
+# 新前端创建后，在此恢复 Node 构建阶段，并将产物复制到 /opt/dist。
+RUN mkdir -p /opt/dist
 
-COPY --from=builder /src/main/resources/static /opt/dist
-
-CMD ["nginx","-g","daemon off;"]
-
+CMD ["nginx", "-g", "daemon off;"]

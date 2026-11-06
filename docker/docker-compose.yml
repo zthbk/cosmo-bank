@@ -1,4 +1,3 @@
-version: '3'
 services:
   polaris-redis:
     image: redis:latest  # 使用官方Redis镜像

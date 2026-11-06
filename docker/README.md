@@ -4,7 +4,6 @@
 
 `.env`用来配置环境变量，在这里配好之后，其它的配置会自动联动的。
 
-`build.sh`用来以日期为tag构建镜像，推送到指定的容器注册表内（Windows下可以使用`Git Bash`运行）
-
+当前没有前端工程，`polaris-nginx` 镜像仅提供反向代理；新前端创建后，在 `docker/nginx/Dockerfile` 恢复 Node 构建阶段，并将产物复制到 `/opt/dist`。
 
 其它的文件的作用暂不明确

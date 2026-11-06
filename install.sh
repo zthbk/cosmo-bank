@@ -41,7 +41,8 @@ ExecStart=java -jar ${jar_files}
 SuccessExitStatus=143
 Restart=on-failure
 RestartSec=10s
-Environment=SPRING_PROFILES_ACTIVE=prod
+# 注意：打包产物不包含 application-*.yml，需在 WorkingDirectory 提供外部 profile 配置
+Environment=SPRING_PROFILES_ACTIVE=dev
 
 [Install]
 WantedBy=multi-user.target

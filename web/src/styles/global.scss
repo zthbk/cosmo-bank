@@ -1,0 +1,40 @@
+:root {
+  --brand-deep: #0e3462;
+  --brand: #225c99;
+  --brand-light: #3b83c5;
+  --primary: #4d91cd;
+  --primary-deep: #0655a4;
+  --primary-soft: #d6e9f8;
+  --page-bg: #f3f5f5;
+  --card-bg: #ffffff;
+  --border: #e6e8ea;
+  --text-main: #303133;
+  --text-secondary: #606266;
+  --text-muted: #909399;
+  --danger: #d95a50;
+  --warning: #edc94d;
+  --info: #4ab6da;
+  --success: #42b694;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', sans-serif;
+  color: var(--text-main);
+  background: var(--page-bg);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}

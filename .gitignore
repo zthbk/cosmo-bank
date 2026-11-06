@@ -27,6 +27,13 @@ hs_err_pid*
 /target/
 
 /src/main/resources/static/
+
+# Frontend build and dependencies
+node_modules/
+/web/dist/
+/web/.vite/
+/web/.env.*.local
+
 certificates
 /.vs
 /docker/volumes

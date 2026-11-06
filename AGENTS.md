@@ -2,11 +2,11 @@
 
 ## 项目概览
 
-- 技术栈：Java 17 + Spring Boot 3.4.4 单 Maven 模块；Spring Security、MyBatis、PageHelper、Redis、MySQL 8.4、Jain SIP、OkHttp、ZLMediaKit。
+- 技术栈：Java 17 + Spring Boot 3.4.4 单 Maven 模块；Spring Security、MyBatis、PageHelper、Redis、MySQL 8.4、Jain SIP、OkHttp、ZLMediaKit；前端 `web/` 使用 Vue 3.5 + Vite 6.4 + Element Plus 2.13 + Pinia。
 - 核心依赖：`spring-boot-starter-web/security/data-redis`、`mybatis-spring-boot-starter`、`mysql-connector-j` 8.4、`jain-sip-ri`、`okhttp`、`springdoc/knife4j`、`fastjson2`、`caffeine`、`lombok`。
 - 部署方式：`docker/docker-compose.yml` 编排 MySQL 8.4、Redis、ZLM、WVP、Nginx；本地开发可只用 Docker 起 Redis/ZLM，WVP 从 IDE 或 Maven 启动。
 - 入口：`src/main/java/com/genersoft/iot/vmp/VManageBootstrap.java`；后端代码根目录：`src/main/java/com/genersoft/iot/vmp/`。
-- 当前状态：旧 `web/` 已删除，新 Vue 3 前端尚未创建；JT1078/FTP、地图/瓦片、ABL、流代理、推流与 `/api/sy`、非 MySQL 数据库支持已删除；C3 平台级联处于冻结观察期。
+- 当前状态：旧 `web/` 已删除，新 Vue 3 前端 `web/` 已创建（M1 登录与全局框架）；JT1078/FTP、地图/瓦片、ABL、流代理、推流与 `/api/sy`、非 MySQL 数据库支持已删除；C3 平台级联处于冻结观察期。
 
 ## 常用命令
 
@@ -28,11 +28,15 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev,local
 
 # 全栈 Docker
 cd docker && docker compose up -d
+
+# 前端（Node 20 LTS，工程在 web/）
+cd web && npm ci && npm run dev     # 开发，代理 /api、/biz 到 18080
+cd web && npm run build             # 构建到 src/main/resources/static
 ```
 
 - 运行单测：`pom.xml` 硬编码 `<skipTests>true</skipTests>`，`-DskipTests=false` 无效；用 IDE，或临时改为 `false` 后执行并恢复。
 - 代码检查：本项目没有 Checkstyle/Spotless；以 `compile`、`test-compile`、`package` 和 `git diff --check` 为准。
-- 前端：当前没有 `web/` 工程，不要执行 `cd web`、`npm install` 或 `npm run build`；新前端另行创建。
+- 前端：工程在 `web/`，依赖安装用 `npm ci`，构建用 `npm run build`；构建产物输出到 `src/main/resources/static`（已 gitignore），不要手工提交。
 - 本地默认端口：HTTP 18080、SIP 8116；ZLM HTTP 9092，媒体端口以 `docker/.env` 和实际配置为准。
 
 ## 架构约束
@@ -69,6 +73,8 @@ cd docker && docker compose up -d
 | `docs/local/doc目录迁移说明.local.md` | 原 `doc/` 目录逐篇处置与引用更新 | 迁移记录 |
 | `docs/local/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚 | 本地计划，不随代码提交 |
 | `docs/local/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵 | C3 执行前必须逐项复核 |
+| `docs/local/C3冻结观察记录.local.md` | C3 观察期记录与解除门槛 | 本地记录，不随代码提交 |
+| `docs/local/岸端企业平台与全国平台对接设计说明.local.md` | REST/Kafka/OAuth2.0 对接设计 | 本地设计文档 |
 | `docs/local/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 | 本地设计文档 |
 | `docs/local/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 | 本地设计文档 |
 | `docs/local/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 | 旧 `web/` 已删除 |
@@ -99,3 +105,4 @@ cd docker && docker compose up -d
 - **`GlobalResponseAdvice` 有路径例外。** `/api/v1`、`/api/video-`、`/index/hook` 等不自动包装；新增兼容接口时确认响应结构，避免重复包 `WVPResult`。
 - **`DynamicTask` key 全局唯一。** 完成、取消、超时后必须移除 future，否则同 key 无法重新注册；`DeferredResult` 只能成功一次，清理按本次请求拥有的状态做条件删除。
 - **当前没有 CI workflow。** `.github/` 已删除，不要假设推送后自动编译；所有验证在本地完成。
+- **前端构建产物不提交。** `web/node_modules/`、`web/dist/`、`src/main/resources/static/` 均已忽略；`npm run build` 会写入 `src/main/resources/static`，由后端或 nginx 提供。

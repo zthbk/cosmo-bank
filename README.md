@@ -1,10 +1,10 @@
 # 岸端企业平台（GB28181 视频底座）
 
-> 基于 WVP-Pro 裁剪后的船舶智能监控岸端视频底座 | Java 17 + Spring Boot 3.4.4 | 当前无前端工程
+> 基于 WVP-Pro 裁剪后的船舶智能监控岸端视频底座 | Java 17 + Spring Boot 3.4.4 | 前端 `web/`（Vue 3 + Vite 6，M1 骨架）
 
 本项目以 WVP-Pro 为视频与设备底座，保留 GB28181 设备接入、通道管理、实时点播、历史回放、对讲/广播、PTZ、ZLM 媒体节点、云录像、录像计划、设备告警、移动位置、用户权限与日志能力，面向船舶智能监控 2.0 岸端平台继续建设。
 
-当前仓库是**清理后的视频与设备底座**，不是完整的岸端企业平台。AI 告警、告警处置、统计报表、值班室播报、对象存储、全国平台对接和新 Vue 3 前端尚未交付。
+当前仓库是**清理后的视频与设备底座**，并已创建 Vue 3 前端骨架（登录与全局框架可用）；AI 告警、告警处置、统计报表、值班室播报、对象存储、全国平台对接与业务页面尚未交付。
 
 ## 1. 当前能力与边界
 
@@ -22,7 +22,7 @@
 | ABL 媒体服务 | 已删除 | 媒体节点全部为 ZLM |
 | 流代理、推流、`/api/sy` | 已删除 | 无拉流源、无推流源、无第三方调用 |
 | 非 MySQL 数据库 | 已删除 | 仅支持 MySQL 8.4 |
-| 旧 Vue 2 前端 | 已删除 | 新 Vue 3 + Vite 6 前端待建 |
+| 旧 Vue 2 前端 | 已删除 | 新 Vue 3 + Vite 6 前端骨架已创建，业务页面待建 |
 
 ## 2. 技术栈
 
@@ -31,7 +31,7 @@
 - 数据：MyBatis 3.0.4、PageHelper 2.1.1、MySQL 8.4（`mysql-connector-j` 8.4.0）、Redis。
 - 协议与媒体：Jain SIP 1.3.0-91、GB28181、OkHttp、ZLMediaKit 外部媒体服务。
 - 工具：Lombok、fastjson2、Caffeine、Guava、Hutool。
-- 前端：当前无 `web/` 工程；目标为 Vue 3 + Vite 6 + Element Plus 2.13，另行创建。
+- 前端：`web/` 为 Vue 3.5 + Vite 6.4 + Element Plus 2.13 + vue-router 4 + Pinia 工程，M1 已完成登录、全局框架与动态监控占位。
 
 ## 3. 目录结构
 
@@ -46,6 +46,7 @@ src/main/java/com/genersoft/iot/vmp/
 ├── conf/           配置、安全、调度、Redis
 └── utils/          时间、媒体、通用工具
 src/main/resources/ 配置、日志、SQL 映射
+web/                Vue 3 前端工程，构建输出到 src/main/resources/static
 docker/             Docker Compose、MySQL/Redis/ZLM/WVP/Nginx
 sql/                 按版本维护的 MySQL 脚本
 docs/               编程规范、运行参考、前端规格、改造方案与清理计划
@@ -59,21 +60,23 @@ docs/               编程规范、运行参考、前端规格、改造方案与
 
 - JDK 17（不要使用 JDK 21 或更高版本构建）。
 - Maven 3.9+。
+- 前端：Node.js 20 LTS、npm 10+（工程在 `web/`）。
 - MySQL 8.4。
 - Redis。
 - ZLMediaKit（ZLM）。
 - Docker 可选；全栈部署推荐 Docker Compose。
 
-当前没有前端工程，不需要 Node/npm。
+前端工程使用 Node.js 20 LTS 与 npm 10+，依赖与构建命令见 4.5。
 
 ### 4.2 初始化数据库
 
 ```bash
 mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS wvp DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 mysql -uroot -p wvp < sql/3.0.0/初始化-mysql-3.0.0.sql
+mysql -uroot -p wvp < sql/3.1.0/更新-biz-3.1.0.sql
 ```
 
-数据库脚本按版本维护，无 Flyway/Liquibase；生产升级按 `sql/<version>/更新-*.sql` 顺序执行。
+数据库脚本按版本维护，无 Flyway/Liquibase；生产升级按 `sql/<version>/更新-*.sql` 顺序执行。`3.1.0` 新增企业、船舶、船舶通道、终端、值班室 5 张业务档案表，可重复执行。
 
 ### 4.3 配置
 
@@ -116,7 +119,19 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev,local
 
 `AdminPasswordInitializer` 只在管理员仍为默认密码时设置，已改密码不会覆盖。
 
-### 4.5 Docker Compose 全栈
+### 4.5 本地启动前端
+
+```bash
+cd web
+npm ci
+npm run dev
+```
+
+- 开发地址：`http://127.0.0.1:3000/`。
+- 开发代理：`/api`、`/biz` 指向 `http://127.0.0.1:18080`。
+- 生产构建：`npm run build`，输出到 `src/main/resources/static`（该目录被 gitignore，由后端或 nginx 提供）。
+
+### 4.6 Docker Compose 全栈
 
 ```bash
 cd docker
@@ -130,7 +145,7 @@ docker compose up -d
 
 ## 5. 访问与接口
 
-- 管理端页面：当前无前端工程，接口可直接通过 Knife4j/OpenAPI 调试。
+- 管理端页面：启动 `web/` 后访问 `http://127.0.0.1:3000/`；生产由 nginx 提供 `src/main/resources/static` 构建产物。接口也可通过 Knife4j/OpenAPI 调试。
 - API 文档：`http://127.0.0.1:18080/doc.html`。
 - OpenAPI：`/v3/api-docs`。
 - 主要接口分组：
@@ -152,6 +167,9 @@ mvn -q -DskipTests compile
 mvn -q -DskipTests test-compile
 mvn -q -DskipTests package
 mvn -q clean package -DskipTests
+
+# 前端构建（Node 20 LTS）
+cd web && npm ci && npm run build
 ```
 
 - 删除过类文件后必须使用 `mvn clean package`，否则 `target/classes` 中的旧 class 可能被打进 jar。
@@ -163,7 +181,7 @@ mvn -q clean package -DskipTests
 
 - 已完成：B4（非 MySQL 支持）、B1（JT1078/FTP）、B3（地图/瓦片）、C4（ABL）、C1（流代理）、C2（推流与 `/api/sy`）。
 - 进行中：C3 GB28181 平台级联，处于冻结观察期；未完成 SDP 地址重构前不要删除 `Platform` 类。
-- 旧 `web/` 已删除，新前端尚未创建；创建后按 `docs/local/岸端企业平台前端还原规格.local.md` 执行，不要执行旧前端构建命令。
+- 旧 `web/` 已删除；新前端 `web/` 已创建，M1（登录、全局框架、动态监控占位）可用；业务页面按 `docs/local/岸端企业平台前端还原规格.local.md` 继续开发，不要执行旧前端构建命令。
 - 已删除模块的数据库表和通道数据可能仍存在（如 `wvp_jt_*`、`wvp_stream_proxy`、`wvp_stream_push`、`data_type=2/3`），但代码已不依赖，清理需单独备份、停写、观察。
 - 上游 WVP 文档站（原 `doc/`）已删除，保留内容已整理到 `docs/local/`；`docs/guide/编程规范.md` 已按当前基线重写，不要再按上游旧文档恢复已删除模块。
 - `application-*.yml` 不会打进 jar；`java -jar` 从仓库根目录启动会缺少 DataSource 配置。请从源码/IDE 启动，或显式提供外部配置。
@@ -181,6 +199,8 @@ mvn -q clean package -DskipTests
 | `docs/local/doc目录迁移说明.local.md` | 原 `doc/` 目录逐篇处置与引用更新 |
 | `docs/local/冗余代码与文件清理计划.local.md` | 清理批次、执行记录、验收与回滚（本地计划） |
 | `docs/local/C3平台级联方法级清单.local.md` | C3 逐方法删除矩阵（本地清单） |
+| `docs/local/C3冻结观察记录.local.md` | C3 观察期记录、解除门槛与周检结果（本地记录） |
+| `docs/local/岸端企业平台与全国平台对接设计说明.local.md` | REST/Kafka/OAuth2.0 对接设计、接口清单与分期 |
 | `docs/local/岸端企业平台改造方案.local.md` | 岸端平台目标架构与 P1 能力 |
 | `docs/local/船舶终端与岸端企业平台通信设计说明.local.md` | 终端 HTTPS/Kafka/REST 对接口径 |
 | `docs/local/前端重建参考.local.md`、`前端重建参考-API契约.local.md` | 新前端页面与 API 契约 |

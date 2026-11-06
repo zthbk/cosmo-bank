@@ -7,3 +7,8 @@ config
 打包
 .idea
 *.local.md
+.git
+backup
+web/node_modules
+web/dist
+src/main/resources/static
